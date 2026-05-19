@@ -191,6 +191,7 @@ a.btn{display:inline-flex;}
   .modal-overlay{padding:.5rem .5rem 1.5rem;}
 }
 </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -201,6 +202,7 @@ a.btn{display:inline-flex;}
     <div class="site-subtitle">Il tuo diario della ricerca casa</div>
   </div>
   <div class="header-actions">
+    <button id="auth-btn" class="btn btn-primary" onclick="toggleAuth()">Accedi con Google</button>
     <button class="btn btn-ghost" onclick="exportData()" title="Esporta JSON">💾 Esporta</button>
     <button class="btn btn-primary" onclick="openModal()">+ Aggiungi casa</button>
   </div>
@@ -402,6 +404,7 @@ a.btn{display:inline-flex;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 // Firebase config (for your project)
 const firebaseConfig = {
@@ -418,7 +421,45 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 try{ const analytics = getAnalytics(app); }catch(e){}
 const db = getFirestore(app);
-const housesCol = collection(db, 'houses');
+// --- Auth (Google) ---
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+let authUid = null;
+let unsubscribeFirestore = null;
+
+function updateAuthButton(user){
+  const btn = document.getElementById('auth-btn');
+  if(!btn) return;
+  if(user){ btn.textContent = (user.displayName || 'Account') + ' ⎋'; btn.className='btn btn-ghost'; }
+  else { btn.textContent = 'Accedi con Google'; btn.className='btn btn-primary'; }
+}
+
+async function signInGoogle(){
+  try{ await signInWithRedirect(auth, provider); }
+  catch(e){ console.error('Google sign-in failed', e); alert('Accesso fallito: '+e.message); }
+}
+
+// Handle redirect result (in case the provider returns data after redirect)
+getRedirectResult(auth).then(result=>{
+  if(result && result.user){ console.log('Redirect sign-in success', result.user.uid); }
+}).catch(e=>{
+  if(e && e.code==='auth/popup-blocked'){
+    // unlikely here, but keep message
+    console.warn('Popup was blocked; using redirect flow instead');
+  } else if(e){ console.warn('getRedirectResult error', e); }
+});
+
+async function signOutUser(){
+  try{ await signOut(auth); }
+  catch(e){ console.error('Sign-out failed', e); }
+}
+
+function toggleAuth(){ if(auth.currentUser) signOutUser(); else signInGoogle(); }
+
+onAuthStateChanged(auth, user=>{
+  if(user){ authUid = user.uid; console.log('Signed in', authUid); updateAuthButton(user); subscribeToFirestoreForUser(authUid); }
+  else { authUid = null; updateAuthButton(null); if(unsubscribeFirestore) { unsubscribeFirestore(); unsubscribeFirestore=null; } houses = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); render(); }
+});
 
 // --- End Firebase init ---
 
@@ -703,22 +744,24 @@ async function saveHouse() {
   };
   FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); h[f]=el?el.checked:false; });
 
-  try{
-    await setDoc(doc(db, 'houses', String(h.id)), h);
-    toast(editingId? '✅ Casa aggiornata!' : '🏠 Casa aggiunta!');
-    closeModal();
-  } catch(e){
-    console.error('Firestore save error', e);
-    // fallback to local
-    if(editingId){
-      const idx=houses.findIndex(x=>x.id===editingId);
-      if(idx>-1) houses[idx]=h;
-      toast('✅ Casa aggiornata (locale)');
-    } else {
-      houses.push(h); toast('🏠 Casa aggiunta (locale)');
+  if(authUid){
+    try{
+      await setDoc(doc(db, 'users', authUid, 'houses', String(h.id)), h);
+      toast(editingId? '✅ Casa aggiornata!' : '🏠 Casa aggiunta!');
+      closeModal();
+      return;
+    } catch(e){
+      console.error('Firestore save error', e);
+      toast('Errore salvataggio su server, uso backup locale');
     }
-    save(); render(); closeModal();
   }
+  // fallback to local
+  if(editingId){
+    const idx=houses.findIndex(x=>x.id===editingId);
+    if(idx>-1) houses[idx]=h;
+    toast('✅ Casa aggiornata (locale)');
+  } else { houses.push(h); toast('🏠 Casa aggiunta (locale)'); }
+  save(); render(); closeModal();
 }
 
 function editHouse(id){ openModal(id); }
@@ -727,23 +770,28 @@ async function quickVisit(id){
   const h=houses.find(x=>x.id===id);
   if(!h) return;
   const updated = {...h, visitata:!h.visitata};
-  try{
-    await setDoc(doc(db,'houses',String(id)), updated);
-    toast(updated.visitata?'✅ Segnata come visitata!':'↩️ Rimossa dal visitato');
-  } catch(e){
-    console.error('Firestore update error', e);
-    h.visitata = !h.visitata; save(); render(); toast(h.visitata?'✅ Segnata come visitata!':'↩️ Rimossa dal visitato');
+  if(authUid){
+    try{
+      await setDoc(doc(db,'users',authUid,'houses',String(id)), updated);
+      toast(updated.visitata?'✅ Segnata come visitata!':'↩️ Rimossa dal visitato');
+      return;
+    } catch(e){ console.error('Firestore update error', e); }
   }
+  h.visitata = !h.visitata; save(); render(); toast(h.visitata?'✅ Segnata come visitata!':'↩️ Rimossa dal visitato');
 }
 
 function deleteHouse(id){ deletingId=id; document.getElementById('confirm-dialog').classList.add('open'); }
 function cancelDelete(){ deletingId=null; document.getElementById('confirm-dialog').classList.remove('open'); }
 async function confirmDelete(){
-  try{
-    await deleteDoc(doc(db,'houses',String(deletingId)));
-    toast('🗑️ Casa eliminata');
-  } catch(e){
-    console.error('Firestore delete error', e);
+  if(authUid){
+    try{
+      await deleteDoc(doc(db,'users',authUid,'houses',String(deletingId)));
+      toast('🗑️ Casa eliminata');
+    } catch(e){
+      console.error('Firestore delete error', e);
+      houses=houses.filter(x=>x.id!==deletingId); save(); render(); toast('🗑️ Casa eliminata (locale)');
+    }
+  } else {
     houses=houses.filter(x=>x.id!==deletingId); save(); render(); toast('🗑️ Casa eliminata (locale)');
   }
   deletingId=null;
@@ -760,16 +808,18 @@ function exportData(){
 // Keyboard ESC
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 
-// Subscribe to Firestore collection and keep local backup in localStorage
-function subscribeToFirestore(){
+// Subscribe to Firestore for the authenticated user's houses
+function subscribeToFirestoreForUser(uid){
+  if(unsubscribeFirestore){ unsubscribeFirestore(); unsubscribeFirestore = null; }
+  if(!uid){ render(); return; }
   try{
-    onSnapshot(housesCol, snapshot=>{
+    const userCol = collection(db, 'users', uid, 'houses');
+    unsubscribeFirestore = onSnapshot(userCol, snapshot=>{
       const arr = snapshot.docs.map(d=>({ id: d.id, ...d.data() }));
       houses = arr;
       save(); render();
     }, err=>{
       console.error('onSnapshot error', err);
-      // keep local data
       render();
     });
   }catch(e){
@@ -778,7 +828,26 @@ function subscribeToFirestore(){
   }
 }
 
-subscribeToFirestore();
+// Render local data initially; live updates start after sign-in
+// Expose handlers to global scope for inline `onclick` attributes
+window.toggleAuth = toggleAuth;
+window.signInGoogle = signInGoogle;
+window.signOutUser = signOutUser;
+window.exportData = exportData;
+window.openModal = openModal;
+window.setSort = setSort;
+window.closeOnOverlay = closeOnOverlay;
+window.closeModal = closeModal;
+window.toggleCheck = toggleCheck;
+window.setStar = setStar;
+window.setToggle = setToggle;
+window.saveHouse = saveHouse;
+window.editHouse = editHouse;
+window.quickVisit = quickVisit;
+window.deleteHouse = deleteHouse;
+window.cancelDelete = cancelDelete;
+window.confirmDelete = confirmDelete;
+window.toggleCheck = toggleCheck;
 render();
 </script>
 </body>

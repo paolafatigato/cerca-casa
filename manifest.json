@@ -4,8 +4,8 @@
   "description": "Il tuo diario della ricerca casa",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#F9F5EF",
+  "background_color": "#fff9f1",
+  "theme_color": "#caff1d",
   "icons": [
     {
       "src": "icon.png",

@@ -1,0 +1,49 @@
+/* Palette variables provided by the user */
+:root{
+  --chartreuse: #caff1dff;
+  --razzmatazz: #f02d74ff;
+  --violet-ray: #9019ffff;
+  --violet: #f090fbff;
+  --tangerine-dream: #ff8b47ff;
+  --apricot-cream: #ffd399ff;
+  --floral-white: #fff9f1ff;
+
+  /* Semantic tokens mapped to the palette */
+  --color-bg: var(--floral-white);
+  --color-surface: #ffffff;
+  --color-primary: var(--violet-ray);
+  --color-accent: var(--tangerine-dream);
+  --color-success: var(--chartreuse);
+  --color-danger: var(--razzmatazz);
+  --text-primary: #1b1b1b;
+  --muted: rgba(27,27,27,0.55);
+}
+
+/* App-level overrides to keep colors coherent with the palette */
+body{background:var(--color-bg);color:var(--text-primary);}
+.site-header{background:var(--color-surface);}
+.btn-primary{background:var(--color-primary);color:#fff}
+.btn-primary:hover{background:color-mix(in srgb, var(--color-primary) 75%, #000 25%)}
+.btn-danger{color:var(--color-danger);border-color:rgba(240,45,116,0.12)}
+.pill.active{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+.card{background:var(--color-surface);border-color:rgba(0,0,0,0.04)}
+.badge-vis.yes{background:color-mix(in srgb, var(--chartreuse) 12%, #fff 88%);color:var(--chartreuse)}
+.badge-con.yes{background:color-mix(in srgb, var(--violet) 12%, #fff 88%);color:var(--violet)}
+
+/* Small helper utilities */
+.accent{color:var(--color-accent)}
+.muted{color:var(--muted)}
+
+/* Palette swatches (useful for design/debug) */
+.swatches{display:flex;gap:.5rem;padding:.6rem}
+.sw{width:28px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,0.06)}
+.sw--chartreuse{background:var(--chartreuse)}
+.sw--razzmatazz{background:var(--razzmatazz)}
+.sw--violet-ray{background:var(--violet-ray)}
+.sw--violet{background:var(--violet)}
+.sw--tangerine-dream{background:var(--tangerine-dream)}
+.sw--apricot-cream{background:var(--apricot-cream)}
+.sw--floral-white{background:var(--floral-white);border:1px solid #eee}
+
+/* Ensure form controls remain readable */
+input,textarea,select{color:var(--text-primary)}
