@@ -139,6 +139,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);mi
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem;}
 .form-row.full{grid-template-columns:1fr;}
 .form-row.three{grid-template-columns:1fr 1fr 1fr;}
+.compact-input{padding:.28rem .45rem;border:1px solid var(--bds);border-radius:6px;font-size:.78rem;width:6.2rem;background:var(--cream);}
+.compact-input::placeholder{color:var(--tl);font-size:.78rem}
 .fg{display:flex;flex-direction:column;gap:3px;}
 .fg label{font-size:.76rem;color:var(--tm);font-weight:500;}
 .fg input[type=text],.fg input[type=url],.fg input[type=number],.fg textarea,.fg select{padding:.48rem .7rem;border:1px solid var(--bds);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.86rem;color:var(--td);background:var(--cream);transition:border-color .15s;outline:none;}
@@ -362,14 +364,45 @@ a.btn{display:inline-flex;}
           <input type="text" id="f-data-visita" placeholder="es. 25 maggio ore 15:00"></div>
       </div>
 
-      <div class="sec">📏 Distanze (minuti a piedi o in auto)</div>
-      <div class="form-row three">
-        <div class="fg"><label>🏫 Da scuola</label>
-          <input type="number" id="f-scuola" placeholder="10" min="0"></div>
-        <div class="fg"><label>🚂 Da stazione</label>
-          <input type="number" id="f-stazione" placeholder="5" min="0"></div>
-        <div class="fg"><label>🛒 Dal supermercato</label>
-          <input type="number" id="f-centro" placeholder="8" min="0"></div>
+      <div class="sec">📏 Distanze (minuti)</div>
+      <div style="font-size:.72rem;color:var(--tl);margin-bottom:.45rem;">Inserisci i minuti per ogni mezzo. Lascia vuoto se non applicabile.</div>
+
+      <div class="form-row" style="gap:.45rem;">
+        <div class="fg" style="min-width:0;">
+          <label style="font-size:.75rem;margin-bottom:4px;">🏫 Scuola</label>
+          <div style="display:flex;gap:.4rem;align-items:center;">
+            <input type="number" class="compact-input" id="f-scuola-piedi" placeholder="🚶 10" min="0">
+            <input type="number" class="compact-input" id="f-scuola-bici" placeholder="🚲 5" min="0">
+            <input type="number" class="compact-input" id="f-scuola-auto" placeholder="🚗 3" min="0">
+          </div>
+        </div>
+        <div class="fg" style="min-width:0;">
+          <label style="font-size:.75rem;margin-bottom:4px;">🚂 Stazione</label>
+          <div style="display:flex;gap:.4rem;align-items:center;">
+            <input type="number" class="compact-input" id="f-stazione-piedi" placeholder="🚶 10" min="0">
+            <input type="number" class="compact-input" id="f-stazione-bici" placeholder="🚲 5" min="0">
+            <input type="number" class="compact-input" id="f-stazione-auto" placeholder="🚗 3" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row" style="gap:.45rem;margin-top:.4rem;">
+        <div class="fg" style="min-width:0;">
+          <label style="font-size:.75rem;margin-bottom:4px;">🛒 Supermercato</label>
+          <div style="display:flex;gap:.4rem;align-items:center;">
+            <input type="number" class="compact-input" id="f-super-piedi" placeholder="🚶 10" min="0">
+            <input type="number" class="compact-input" id="f-super-bici" placeholder="🚲 5" min="0">
+            <input type="number" class="compact-input" id="f-super-auto" placeholder="🚗 3" min="0">
+          </div>
+        </div>
+        <div class="fg" style="min-width:0;">
+          <label style="font-size:.75rem;margin-bottom:4px;">🏋️ Palestra</label>
+          <div style="display:flex;gap:.4rem;align-items:center;">
+            <input type="number" class="compact-input" id="f-palestra-piedi" placeholder="🚶 10" min="0">
+            <input type="number" class="compact-input" id="f-palestra-bici" placeholder="🚲 5" min="0">
+            <input type="number" class="compact-input" id="f-palestra-auto" placeholder="🚗 3" min="0">
+          </div>
+        </div>
       </div>
 
 
@@ -563,11 +596,22 @@ function renderCard(h, idx) {
   const ratio = fmtRatio(h.prezzo, h.mq);
 
   const dists = [];
-  if(h.distScuola)     dists.push(`<span class="dist-item">🏫 <span class="dist-val">${h.distScuola} min</span></span>`);
-  if(h.distStazione)   dists.push(`<span class="dist-item">🚂 <span class="dist-val">${h.distStazione} min</span></span>`);
-  if(h.distCentro)     dists.push(`<span class="dist-item">🏙️ <span class="dist-val">${h.distCentro} min</span></span>`);
-  if(h.distSuper)      dists.push(`<span class="dist-item">🛒 <span class="dist-val">${h.distSuper} min</span></span>`);
-  if(h.distBus)        dists.push(`<span class="dist-item">🚌 <span class="dist-val">${h.distBus} min</span></span>`);
+  function distGroup(icon, piedi, bici, auto) {
+    const parts = [];
+    if(piedi) parts.push(`🚶${piedi}′`);
+    if(bici)  parts.push(`🚲${bici}′`);
+    if(auto)  parts.push(`🚗${auto}′`);
+    if(!parts.length) return null;
+    return `<span class="dist-item">${icon} <span class="dist-val">${parts.join(' ')}</span></span>`;
+  }
+  const dScuola = distGroup('🏫', h.distScuolaPiedi, h.distScuolaBici, h.distScuolaAuto);
+  const dStaz   = distGroup('🚂', h.distStazionePiedi, h.distStazioneBici, h.distStazioneAuto);
+  const dSuper  = distGroup('🛒', h.distSuperPiedi, h.distSuperBici, h.distSuperAuto);
+  const dPal    = distGroup('🏋️', h.distPalestraPiedi, h.distPalestraBici, h.distPalestraAuto);
+  if(dScuola) dists.push(dScuola);
+  if(dStaz)   dists.push(dStaz);
+  if(dSuper)  dists.push(dSuper);
+  if(dPal)    dists.push(dPal);
 
   const classeEl = h.classe ? `<span class="badge" style="background:#EAF5EE;color:#2E7040;margin-left:4px;">${h.classe}</span>` : '';
   const speseEl = h.spese ? `<span class="dist-item">💰 cond. <span class="dist-val">€${h.spese}/mese</span></span>` : '';
@@ -631,8 +675,8 @@ function getSorted() {
     case 'prezzo':   return arr.sort((a,b)=>(a.prezzo||Infinity)-(b.prezzo||Infinity));
     case 'stelline': return arr.sort((a,b)=>(b.stelline||0)-(a.stelline||0));
     case 'mq':       return arr.sort((a,b)=>(b.mq||0)-(a.mq||0));
-    case 'scuola':   return arr.sort((a,b)=>(a.distScuola||9999)-(b.distScuola||9999));
-    case 'stazione': return arr.sort((a,b)=>(a.distStazione||9999)-(b.distStazione||9999));
+    case 'scuola':   return arr.sort((a,b)=>(a.distScuolaPiedi||9999)-(b.distScuolaPiedi||9999));
+    case 'stazione': return arr.sort((a,b)=>(a.distStazionePiedi||9999)-(b.distStazionePiedi||9999));
     default:         return arr.sort((a,b)=>Number(b.id||0)-Number(a.id||0));
   }
 }
@@ -700,13 +744,15 @@ function openModal(id=null) {
   if(id) {
     const h = houses.find(x=>x.id===id);
     if(!h) return;
-    const fields = ['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola','stazione','centro','supermercato','ospedale','bus','pro','contro','note','data-visita'];
+    const fields = ['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola-piedi','scuola-bici','scuola-auto','stazione-piedi','stazione-bici','stazione-auto','super-piedi','super-bici','super-auto','palestra-piedi','palestra-bici','palestra-auto','pro','contro','note','data-visita'];
     const hMap = {
       'nome':h.nome,'link':h.link,'prezzo':h.prezzo||'','mq':h.mq||'',
       'agenzia':h.agenzia,'piano':h.piano,'indirizzo':h.indirizzo,'anno':h.anno||'',
       'spese':h.spese||'','referente':h.referente,'contatto-info':h.contattoInfo,
-      'scuola':h.distScuola||'','stazione':h.distStazione||'','centro':h.distCentro||'',
-      'supermercato':h.distSuper||'','ospedale':h.distOspedale||'','bus':h.distBus||'',
+      'scuola-piedi':h.distScuolaPiedi||'','scuola-bici':h.distScuolaBici||'','scuola-auto':h.distScuolaAuto||'',
+      'stazione-piedi':h.distStazionePiedi||'','stazione-bici':h.distStazioneBici||'','stazione-auto':h.distStazioneAuto||'',
+      'super-piedi':h.distSuperPiedi||'','super-bici':h.distSuperBici||'','super-auto':h.distSuperAuto||'',
+      'palestra-piedi':h.distPalestraPiedi||'','palestra-bici':h.distPalestraBici||'','palestra-auto':h.distPalestraAuto||'',
       'pro':h.pro,'contro':h.contro,'note':h.note,'data-visita':h.dataVisita
     };
     fields.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=hMap[f]||''; });
@@ -721,7 +767,7 @@ function openModal(id=null) {
 }
 
 function resetForm() {
-  const fields=['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola','stazione','centro','supermercato','ospedale','bus','pro','contro','note','data-visita'];
+  const fields=['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola-piedi','scuola-bici','scuola-auto','stazione-piedi','stazione-bici','stazione-auto','super-piedi','super-bici','super-auto','palestra-piedi','palestra-bici','palestra-auto','pro','contro','note','data-visita'];
   fields.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=''; });
   const cl=document.getElementById('f-classe'); if(cl) cl.value='';
   FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=false; refreshCI(f); }});
@@ -785,8 +831,10 @@ async function saveHouse() {
     agenzia:v('agenzia'), piano:v('piano'), indirizzo:v('indirizzo'),
     anno:n('anno'), spese:n('spese'), referente:v('referente'),
     contattoInfo:v('contatto-info'), classe:v('classe'),
-    distScuola:n('scuola'), distStazione:n('stazione'), distCentro:n('centro'),
-    distSuper:n('supermercato'), distOspedale:n('ospedale'), distBus:n('bus'),
+    distScuolaPiedi:n('scuola-piedi'), distScuolaBici:n('scuola-bici'), distScuolaAuto:n('scuola-auto'),
+    distStazionePiedi:n('stazione-piedi'), distStazioneBici:n('stazione-bici'), distStazioneAuto:n('stazione-auto'),
+    distSuperPiedi:n('super-piedi'), distSuperBici:n('super-bici'), distSuperAuto:n('super-auto'),
+    distPalestraPiedi:n('palestra-piedi'), distPalestraBici:n('palestra-bici'), distPalestraAuto:n('palestra-auto'),
     pro:v('pro'), contro:v('contro'), note:v('note'), dataVisita:v('data-visita'),
     stelline:currentStars, visitata:toggleState.visitata, contattata:toggleState.contattata,
   };
