@@ -182,15 +182,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);mi
 a.btn{display:inline-flex;}
 
 @media(max-width:620px){
-  .site-header{padding:.9rem 1rem;}
-  .controls{padding:.75rem 1rem;}
-  .stats-bar{padding:.5rem 1rem;gap:1rem;}
+  .site-header{padding:.9rem 1rem;flex-wrap:nowrap;}
+  .site-subtitle{display:none;}
+  .header-actions{gap:.35rem;flex-shrink:0;}
+  .hdr-txt{display:none;}
+  .btn{padding:.5rem .7rem;}
+  .controls{padding:.75rem 1rem;gap:.5rem;}
+  .sort-label{display:none;}
+  .sort-pills{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:3px;scrollbar-width:none;}
+  .sort-pills::-webkit-scrollbar{display:none;}
+  .count-badge{display:none;}
+  .stats-bar{padding:.5rem 1rem;gap:1rem;flex-wrap:wrap;}
+  .stat{font-size:.74rem;}
   .grid{padding:1rem;grid-template-columns:1fr;}
   .form-row{grid-template-columns:1fr;}
   .form-row.three{grid-template-columns:1fr 1fr;}
   .checks-grid{grid-template-columns:repeat(2,1fr);}
   .modal{margin:0;}
   .modal-overlay{padding:.5rem .5rem 1.5rem;}
+  .card-actions{gap:4px;}
+  .pro-contro{grid-template-columns:1fr 1fr;gap:.5rem;}
 }
 </style>
   <link rel="stylesheet" href="styles.css">
@@ -204,9 +215,9 @@ a.btn{display:inline-flex;}
     <div class="site-subtitle">Il tuo diario della ricerca casa</div>
   </div>
   <div class="header-actions">
-    <button id="auth-btn" class="btn btn-primary" onclick="toggleAuth()" style="gap:8px;"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.1 33.6 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.1 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.4-.2-2.7-.5-4z"/></svg> Accedi con Google</button>
-    <button class="btn btn-ghost" onclick="exportData()" title="Esporta JSON">💾 Esporta</button>
-    <button class="btn btn-primary" onclick="openModal()">+ Aggiungi casa</button>
+    <button id="auth-btn" class="btn btn-primary" onclick="toggleAuth()" style="gap:8px;"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.1 33.6 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.1 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.4-.2-2.7-.5-4z"/></svg> <span class="hdr-txt">Accedi con Google</span></button>
+    <button class="btn btn-ghost" onclick="exportData()" title="Esporta JSON">💾 <span class="hdr-txt">Esporta</span></button>
+    <button class="btn btn-primary" onclick="openModal()">+ <span class="hdr-txt">Aggiungi casa</span></button>
   </div>
 </header>
 
@@ -440,7 +451,7 @@ function updateAuthButton(user){
     btn.className='btn btn-ghost';
     btn.style.cssText='border-color:var(--green);color:var(--green);gap:7px;';
   } else {
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0"><path fill="var(--tc)" d="M44.5 20H24v8.5h11.8C34.1 33.6 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.1 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.4-.2-2.7-.5-4z"/></svg> Accedi con Google`;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0"><path fill="var(--tc)" d="M44.5 20H24v8.5h11.8C34.1 33.6 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.1 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.4-.2-2.7-.5-4z"/></svg> <span class="hdr-txt">Accedi con Google</span>`;
     btn.className='btn btn-primary';
     btn.style.cssText='gap:8px;';
   }
@@ -448,14 +459,17 @@ function updateAuthButton(user){
 
 async function signInGoogle(){
   try{
-    // Use popup when running on localhost for easier developer flow
-    if(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'){
-      await signInWithPopup(auth, provider);
+    // Try popup first — works on modern desktop and mobile Chrome/Safari
+    await signInWithPopup(auth, provider);
+  } catch(e){
+    if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
+      // Popup was blocked or dismissed — fall back to redirect (works on all mobile browsers)
+      try{ await signInWithRedirect(auth, provider); }
+      catch(e2){ console.error('Sign-in redirect failed', e2); alert('Accesso fallito: '+e2.message); }
     } else {
-      await signInWithRedirect(auth, provider);
+      console.error('Google sign-in failed', e); alert('Accesso fallito: '+e.message);
     }
   }
-  catch(e){ console.error('Google sign-in failed', e); alert('Accesso fallito: '+e.message); }
 }
 
 // Handle redirect result (in case the provider returns data after redirect)
