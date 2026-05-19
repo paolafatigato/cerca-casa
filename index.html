@@ -182,26 +182,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);mi
 a.btn{display:inline-flex;}
 
 @media(max-width:620px){
-  .site-header{padding:.9rem 1rem;flex-wrap:nowrap;}
+  html,body{overflow-x:hidden;max-width:100%;}
+  .site-header{padding:.75rem 1rem;flex-wrap:nowrap;min-width:0;}
+  .logo{min-width:0;overflow:hidden;}
+  .logo img{width:32px;height:32px;flex-shrink:0;}
+  .logo > div{min-width:0;overflow:hidden;}
+  .site-title{font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .site-subtitle{display:none;}
-  .header-actions{gap:.35rem;flex-shrink:0;}
+  .header-actions{gap:.3rem;flex-shrink:0;}
   .hdr-txt{display:none;}
-  .btn{padding:.5rem .7rem;}
-  .controls{padding:.75rem 1rem;gap:.5rem;}
+  .btn{padding:.45rem .6rem;font-size:.8rem;}
+  .controls{padding:.65rem 1rem;gap:.4rem;}
   .sort-label{display:none;}
-  .sort-pills{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:3px;scrollbar-width:none;}
+  .sort-pills{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:3px;scrollbar-width:none;max-width:100%;}
   .sort-pills::-webkit-scrollbar{display:none;}
   .count-badge{display:none;}
-  .stats-bar{padding:.5rem 1rem;gap:1rem;flex-wrap:wrap;}
-  .stat{font-size:.74rem;}
-  .grid{padding:1rem;grid-template-columns:1fr;}
+  .stats-bar{padding:.5rem 1rem;gap:.75rem;flex-wrap:wrap;}
+  .stat{font-size:.72rem;}
+  .grid{padding:.75rem;grid-template-columns:1fr;width:100%;box-sizing:border-box;}
+  .card{max-width:100%;box-sizing:border-box;}
   .form-row{grid-template-columns:1fr;}
   .form-row.three{grid-template-columns:1fr 1fr;}
   .checks-grid{grid-template-columns:repeat(2,1fr);}
   .modal{margin:0;}
   .modal-overlay{padding:.5rem .5rem 1.5rem;}
+  .modal-body{padding:1rem 1rem;}
   .card-actions{gap:4px;}
   .pro-contro{grid-template-columns:1fr 1fr;gap:.5rem;}
+  #perm-banner{padding:.65rem 1rem;}
 }
 </style>
   <link rel="stylesheet" href="styles.css">
@@ -290,20 +298,20 @@ a.btn{display:inline-flex;}
         <label class="check-item" id="ci-ascensore">
           <input type="checkbox" id="f-ascensore" onchange="refreshCI('ascensore')"> 🛗 Ascensore
         </label>
-        <label class="check-item" id="ci-cantina">
-          <input type="checkbox" id="f-cantina" onchange="refreshCI('cantina')"> 📦 Cantina
-        </label>
-        <label class="check-item" id="ci-parcheggio">
-          <input type="checkbox" id="f-parcheggio" onchange="refreshCI('parcheggio')"> 🅿️ Parcheggio
-        </label>
         <label class="check-item" id="ci-balcone">
           <input type="checkbox" id="f-balcone" onchange="refreshCI('balcone')"> 🌿 Balcone/terrazzo
         </label>
         <label class="check-item" id="ci-giardino">
           <input type="checkbox" id="f-giardino" onchange="refreshCI('giardino')"> 🌳 Giardino
         </label>
-        <label class="check-item" id="ci-portineria">
-          <input type="checkbox" id="f-portineria" onchange="refreshCI('portineria')"> 🔑 Portineria
+        <label class="check-item" id="ci-cantina">
+          <input type="checkbox" id="f-cantina" onchange="refreshCI('cantina')"> 📦 Cantina
+        </label>
+        <label class="check-item" id="ci-parcheggio">
+          <input type="checkbox" id="f-parcheggio" onchange="refreshCI('parcheggio')"> 🅿️ Parcheggio
+        </label>
+        <label class="check-item" id="ci-box">
+          <input type="checkbox" id="f-box" onchange="refreshCI('box')"> 🚗 Box
         </label>
         <label class="check-item" id="ci-doppi-servizi">
           <input type="checkbox" id="f-doppi-servizi" onchange="refreshCI('doppi-servizi')"> 🚿 Doppi servizi
@@ -360,17 +368,10 @@ a.btn{display:inline-flex;}
           <input type="number" id="f-scuola" placeholder="10" min="0"></div>
         <div class="fg"><label>🚂 Da stazione</label>
           <input type="number" id="f-stazione" placeholder="5" min="0"></div>
-        <div class="fg"><label>🏙️ Dal centro</label>
+        <div class="fg"><label>🛒 Dal supermercato</label>
           <input type="number" id="f-centro" placeholder="8" min="0"></div>
       </div>
-      <div class="form-row three">
-        <div class="fg"><label>🛒 Dal supermercato</label>
-          <input type="number" id="f-supermercato" placeholder="5" min="0"></div>
-        <div class="fg"><label>🏥 Dall'ospedale</label>
-          <input type="number" id="f-ospedale" placeholder="15" min="0"></div>
-        <div class="fg"><label>🚌 Dal bus/tram</label>
-          <input type="number" id="f-bus" placeholder="3" min="0"></div>
-      </div>
+
 
       <div class="sec">✅ Lati positivi</div>
       <div class="form-row full">
@@ -509,14 +510,14 @@ let currentStars = 0;
 let toggleState = { visitata: false, contattata: false };
 let firestorePermError = false;
 
-const FEATS = ['ascensore','cantina','parcheggio','balcone','giardino','portineria','doppi-servizi','cucina-abitabile','luminosa'];
+const FEATS = ['ascensore','cantina','parcheggio','balcone','giardino','box','doppi-servizi','cucina-abitabile','luminosa'];
 const FEAT_MAP = {
   'ascensore': '🛗 Ascensore',
-  'cantina': '📦 Cantina',
-  'parcheggio': '🅿️ Parcheggio',
   'balcone': '🌿 Balcone',
   'giardino': '🌳 Giardino',
-  'portineria': '🔑 Portineria',
+  'cantina': '📦 Cantina',
+  'parcheggio': '🅿️ Parcheggio', 
+  'box': '🚗 Box',
   'doppi-servizi': '🚿 2 Servizi',
   'cucina-abitabile': '🍳 Cucina abit.',
   'luminosa': '☀️ Luminosa'
@@ -572,7 +573,7 @@ function renderCard(h, idx) {
   const speseEl = h.spese ? `<span class="dist-item">💰 cond. <span class="dist-val">€${h.spese}/mese</span></span>` : '';
 
   return `
-  <div class="card" id="card-${h.id}">
+  <div class="card" id="card-${h.id}" onclick="openModal('${h.id}')" style="cursor:pointer;">
     <div class="card-header">
       <div class="card-num">${idx+1}</div>
       <div class="card-title-area">
@@ -616,10 +617,10 @@ function renderCard(h, idx) {
     ${h.note?`<div class="note-txt">📝 ${h.note}</div>`:''}
 
     <div class="card-actions">
-      ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank">🔗 Annuncio</a>`:''}
-      <button class="btn btn-ghost btn-sm" onclick="editHouse('${h.id}')">✏️ Modifica</button>
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="quickVisit('${h.id}')">${h.visitata?'↩️ Non visitata':'✅ Segna visitata'}</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteHouse('${h.id}')">🗑️</button>
+      ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank" onclick="event.stopPropagation()">🔗 Annuncio</a>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editHouse('${h.id}')">✏️ Modifica</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="event.stopPropagation(); quickVisit('${h.id}')">${h.visitata?'↩️ Non visitata':'✅ Segna visitata'}</button>
+      <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteHouse('${h.id}')">🗑️</button>
     </div>
   </div>`;
 }
@@ -680,7 +681,7 @@ function render() {
     }
     return;
   }
-  grid.innerHTML = sorted.map((h,i)=>renderCard(h,i)).join('');
+  grid.innerHTML = sorted.map((h,i)=>renderCard(h,i)).join('') + `\n    <div class="card" id="card-add" onclick="event.stopPropagation(); openModal();" style="display:flex;align-items:center;justify-content:center;cursor:default;">\n      <div style="padding:1rem;text-align:center;">\n        <button class="btn btn-primary" onclick="event.stopPropagation(); openModal()">+ Aggiungi casa</button>\n      </div>\n    </div>`;
 }
 
 function setSort(s) {
@@ -850,6 +851,21 @@ function exportData(){
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download=`casacaccia_${new Date().toISOString().slice(0,10)}.json`; a.click();
   toast('💾 Dati esportati!');
+}
+
+function openAnnuncio(e, link){
+  try{
+    // ignore clicks that come from controls inside the card
+    if(e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) return;
+    if(link && typeof link === 'string' && link.startsWith('http')){
+      window.open(link, '_blank');
+      return;
+    }
+    // fallback: if there's no link, open the edit modal for this card
+    const card = e.currentTarget || e.target.closest('.card');
+    const id = card && card.id ? card.id.replace('card-','') : null;
+    if(id) openModal(id);
+  }catch(err){ console.error('openAnnuncio error', err); }
 }
 
 // Keyboard ESC
