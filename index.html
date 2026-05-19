@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casa Caccia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#F9F5EF">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --cream:#F9F5EF;
+  --white:#FFFFFF;
+  --tc:#B5683A;
+  --tc-l:#F5EAE1;
+  --tc-m:#D4895E;
+  --td:#1C1208;
+  --tm:#6B5A49;
+  --tl:#A39585;
+  --bd:#E5DAD0;
+  --bds:#CBBFB2;
+  --green:#2E7040;
+  --green-bg:#EAF5EE;
+  --red:#B83030;
+  --red-bg:#FBEAEA;
+  --gold:#C9922A;
+  --blue:#2764A0;
+  --blue-bg:#EAF0FA;
+  --sh:0 2px 14px rgba(160,120,80,.09);
+  --sh-h:0 6px 28px rgba(160,120,80,.17);
+  --r:12px;--rs:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);min-height:100vh;padding-bottom:3rem;}
+
+/* HEADER */
+.site-header{background:var(--white);border-bottom:1px solid var(--bd);padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;gap:1rem;}
+.logo{display:flex;flex-direction:row;align-items:center;gap:.6rem;}
+.site-title{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:600;letter-spacing:-.01em;}
+.site-subtitle{font-size:.78rem;color:var(--tl);margin-top:1px;}
+.header-actions{display:flex;gap:.6rem;align-items:center;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:.5rem 1.1rem;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:500;cursor:pointer;transition:all .18s;border:none;text-decoration:none;white-space:nowrap;}
+.btn-primary{background:var(--tc);color:#fff;}
+.btn-primary:hover{background:#9E5A2E;}
+.btn-ghost{background:transparent;color:var(--tm);border:1px solid var(--bds);}
+.btn-ghost:hover{background:var(--tc-l);color:var(--tc);border-color:var(--tc-m);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #E8BABA;}
+.btn-danger:hover{background:var(--red-bg);}
+.btn-sm{padding:.28rem .7rem;font-size:.76rem;}
+.btn-xs{padding:.22rem .55rem;font-size:.72rem;}
+
+/* CONTROLS */
+.controls{padding:1rem 2rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;border-bottom:1px solid var(--bd);background:var(--white);}
+.sort-label{font-size:.8rem;color:var(--tm);white-space:nowrap;font-weight:500;}
+.sort-pills{display:flex;gap:5px;flex-wrap:wrap;}
+.pill{padding:.3rem .85rem;border-radius:999px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--bds);background:transparent;color:var(--tm);white-space:nowrap;}
+.pill:hover{border-color:var(--tc-m);color:var(--tc);}
+.pill.active{background:var(--tc);color:#fff;border-color:var(--tc);}
+.count-badge{margin-left:auto;font-size:.8rem;color:var(--tl);white-space:nowrap;}
+
+/* STATS BAR */
+.stats-bar{padding:.65rem 2rem;display:flex;gap:1.5rem;background:#FDFAF7;border-bottom:1px solid var(--bd);flex-wrap:wrap;}
+.stat{font-size:.78rem;color:var(--tm);}
+.stat strong{color:var(--td);font-weight:500;}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:1.2rem;padding:1.5rem 2rem;}
+
+/* CARD */
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;overflow:hidden;display:flex;flex-direction:column;}
+.card:hover{box-shadow:var(--sh-h);transform:translateY(-2px);}
+
+.card-header{padding:.9rem 1.15rem .7rem;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:.65rem;}
+.card-num{width:26px;height:26px;border-radius:50%;background:var(--tc-l);color:var(--tc);font-size:.72rem;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.card-title-area{flex:1;min-width:0;}
+.card-nome{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--td);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.stars{display:flex;gap:1px;margin-top:3px;}
+.star{font-size:.82rem;color:var(--bd);line-height:1;}
+.star.filled{color:var(--gold);}
+.badge{padding:3px 8px;border-radius:999px;font-size:.68rem;font-weight:500;flex-shrink:0;}
+.badge-vis.yes{background:var(--green-bg);color:var(--green);}
+.badge-vis.no{background:#F4F0EB;color:var(--tl);}
+
+.price-row{padding:.75rem 1.15rem;border-bottom:1px solid var(--bd);display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap;}
+.prezzo{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:600;color:var(--tc);}
+.mq-txt{font-size:.85rem;color:var(--tm);}
+.ratio{margin-left:auto;font-size:.74rem;color:var(--tl);}
+.piano-txt{font-size:.78rem;color:var(--tl);margin-left:auto;}
+
+.features{padding:.65rem 1.15rem;display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--bd);min-height:38px;align-items:center;}
+.feat-tag{padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:500;display:inline-flex;align-items:center;gap:2px;}
+.feat-tag.yes{background:var(--tc-l);color:#7A3A1A;}
+.feat-tag.no{background:#F0EDE9;color:var(--tl);opacity:.55;text-decoration:line-through;}
+
+.meta-row{padding:.55rem 1.15rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;border-bottom:1px solid var(--bd);font-size:.78rem;}
+.agenzia-txt{color:var(--tm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;}
+.badge-con.yes{background:var(--blue-bg);color:var(--blue);}
+.badge-con.no{background:#F4F0EB;color:var(--tl);}
+
+.distances{padding:.55rem 1.15rem;display:flex;gap:1rem;flex-wrap:wrap;border-bottom:1px solid var(--bd);font-size:.78rem;}
+.dist-item{display:flex;align-items:center;gap:3px;color:var(--tm);}
+.dist-val{font-weight:500;color:var(--td);}
+
+.pro-contro{padding:.7rem 1.15rem;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;flex:1;}
+.pc-label{font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.pc-label.pro{color:var(--green);}
+.pc-label.contro{color:var(--red);}
+.pc-text{font-size:.76rem;color:var(--tm);line-height:1.5;}
+.pc-empty{font-size:.74rem;color:var(--tl);font-style:italic;}
+
+.note-txt{padding:0 1.15rem .65rem;font-size:.74rem;color:var(--tl);font-style:italic;line-height:1.4;}
+
+.card-actions{padding:.65rem 1.15rem;border-top:1px solid var(--bd);display:flex;align-items:center;gap:6px;background:#FDFBF9;flex-wrap:wrap;}
+
+/* EMPTY */
+.empty-state{grid-column:1/-1;text-align:center;padding:4rem 2rem;}
+.empty-icon{font-size:3.5rem;margin-bottom:1rem;}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--tm);margin-bottom:.5rem;}
+.empty-state p{font-size:.86rem;color:var(--tl);margin-bottom:1.5rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(28,18,8,.52);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem 2rem;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:var(--r);width:100%;max-width:660px;box-shadow:0 20px 60px rgba(0,0,0,.22);transform:translateY(16px);transition:transform .2s;margin:auto;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{padding:1.3rem 1.6rem .9rem;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:600;}
+.modal-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--bds);background:transparent;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--tm);transition:all .15s;}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:#E8BABA;}
+.modal-body{padding:1.3rem 1.6rem;}
+.sec{font-size:.68rem;font-weight:500;text-transform:uppercase;letter-spacing:.09em;color:var(--tc);margin-bottom:.65rem;margin-top:1.3rem;padding-bottom:.35rem;border-bottom:1px solid var(--tc-l);}
+.sec:first-child{margin-top:0;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem;}
+.form-row.full{grid-template-columns:1fr;}
+.form-row.three{grid-template-columns:1fr 1fr 1fr;}
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fg label{font-size:.76rem;color:var(--tm);font-weight:500;}
+.fg input[type=text],.fg input[type=url],.fg input[type=number],.fg textarea,.fg select{padding:.48rem .7rem;border:1px solid var(--bds);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.86rem;color:var(--td);background:var(--cream);transition:border-color .15s;outline:none;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--tc-m);background:#fff;}
+.fg textarea{resize:vertical;min-height:68px;line-height:1.5;}
+
+/* CHECKS */
+.checks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.7rem;}
+.check-item{display:flex;align-items:center;gap:7px;padding:.45rem .7rem;border:1px solid var(--bds);border-radius:var(--rs);cursor:pointer;transition:all .15s;font-size:.8rem;color:var(--tm);user-select:none;}
+.check-item:hover{border-color:var(--tc-m);}
+.check-item input[type=checkbox]{width:14px;height:14px;accent-color:var(--tc);cursor:pointer;}
+.check-item.on{background:var(--tc-l);border-color:var(--tc-m);color:#7A3A1A;}
+
+/* STARS INPUT */
+.star-input{display:flex;gap:5px;margin-bottom:.7rem;}
+.star-btn{font-size:1.5rem;cursor:pointer;background:none;border:none;color:var(--bd);transition:color .1s,transform .1s;padding:1px;line-height:1;}
+.star-btn:hover,.star-btn.on{color:var(--gold);}
+.star-btn:hover{transform:scale(1.15);}
+
+/* TOGGLE */
+.toggle-pair{display:flex;gap:.4rem;}
+.tgl{flex:1;padding:.42rem .5rem;border-radius:var(--rs);border:1px solid var(--bds);font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;transition:all .15s;background:var(--cream);color:var(--tm);text-align:center;}
+.tgl.sel-yes{background:var(--green-bg);color:var(--green);border-color:#8EC9A5;font-weight:500;}
+.tgl.sel-no{background:#F4F0EB;color:var(--tl);border-color:var(--bds);}
+
+.modal-footer{padding:.9rem 1.6rem;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:.65rem;background:#FDFBF9;border-radius:0 0 var(--r) var(--r);}
+
+/* CONFIRM */
+.confirm-dialog{position:fixed;inset:0;background:rgba(28,18,8,.52);z-index:200;display:none;align-items:center;justify-content:center;}
+.confirm-dialog.open{display:flex;}
+.confirm-box{background:#fff;border-radius:var(--r);padding:1.5rem;max-width:340px;width:90%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.18);}
+.confirm-box h4{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.5rem;}
+.confirm-box p{font-size:.84rem;color:var(--tm);margin-bottom:1.2rem;line-height:1.5;}
+.confirm-actions{display:flex;gap:.65rem;justify-content:center;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--td);color:#fff;padding:.5rem 1.2rem;border-radius:999px;font-size:.82rem;opacity:0;transition:all .25s;pointer-events:none;z-index:300;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* LINK BTN */
+a.btn{display:inline-flex;}
+
+@media(max-width:620px){
+  .site-header{padding:.9rem 1rem;}
+  .controls{padding:.75rem 1rem;}
+  .stats-bar{padding:.5rem 1rem;gap:1rem;}
+  .grid{padding:1rem;grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .form-row.three{grid-template-columns:1fr 1fr;}
+  .checks-grid{grid-template-columns:repeat(2,1fr);}
+  .modal{margin:0;}
+  .modal-overlay{padding:.5rem .5rem 1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">
+    <img src="icon.png" alt="Casa Caccia logo" width="48" height="48" style="border-radius:8px;object-fit:cover;">
+    <div class="site-title">Casa Caccia</div>
+    <div class="site-subtitle">Il tuo diario della ricerca casa</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="exportData()" title="Esporta JSON">💾 Esporta</button>
+    <button class="btn btn-primary" onclick="openModal()">+ Aggiungi casa</button>
+  </div>
+</header>
+
+<div class="controls">
+  <span class="sort-label">Ordina per:</span>
+  <div class="sort-pills">
+    <button class="pill active" onclick="setSort('data')" id="pill-data">🕐 Data</button>
+    <button class="pill" onclick="setSort('prezzo')" id="pill-prezzo">💰 Prezzo</button>
+    <button class="pill" onclick="setSort('stelline')" id="pill-stelline">⭐ Gradimento</button>
+    <button class="pill" onclick="setSort('mq')" id="pill-mq">📐 Metri quadri</button>
+    <button class="pill" onclick="setSort('scuola')" id="pill-scuola">🏫 Vicino scuola</button>
+    <button class="pill" onclick="setSort('stazione')" id="pill-stazione">🚂 Vicino stazione</button>
+  </div>
+  <span class="count-badge" id="count-badge">0 case</span>
+</div>
+
+<div class="stats-bar" id="stats-bar" style="display:none;"></div>
+
+<div class="grid" id="grid"></div>
+
+<!-- ─── MODAL ─── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Aggiungi casa</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="sec">📍 Informazioni generali</div>
+      <div class="form-row full">
+        <div class="fg"><label>Nome / etichetta *</label>
+          <input type="text" id="f-nome" placeholder="es. Trilocale via Manzoni 12"></div>
+      </div>
+      <div class="form-row full">
+        <div class="fg"><label>Link annuncio</label>
+          <input type="url" id="f-link" placeholder="https://www.immobiliare.it/..."></div>
+      </div>
+      <div class="form-row three">
+        <div class="fg"><label>Prezzo (€)</label>
+          <input type="number" id="f-prezzo" placeholder="180000" min="0" step="1000"></div>
+        <div class="fg"><label>Metratura (m²)</label>
+          <input type="number" id="f-mq" placeholder="75" min="0"></div>
+        <div class="fg"><label>Piano</label>
+          <input type="text" id="f-piano" placeholder="es. 3° su 5"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Indirizzo / zona</label>
+          <input type="text" id="f-indirizzo" placeholder="Via Roma, Piacenza"></div>
+        <div class="fg"><label>Anno costruzione</label>
+          <input type="number" id="f-anno" placeholder="1980" min="1900" max="2030"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Classe energetica</label>
+          <select id="f-classe">
+            <option value="">—</option>
+            <option>A4</option><option>A3</option><option>A2</option><option>A1</option>
+            <option>B</option><option>C</option><option>D</option><option>E</option>
+            <option>F</option><option>G</option>
+          </select></div>
+        <div class="fg"><label>Spese condominiali (€/mese)</label>
+          <input type="number" id="f-spese" placeholder="80" min="0"></div>
+      </div>
+
+      <div class="sec">🔧 Caratteristiche</div>
+      <div class="checks-grid">
+        <label class="check-item" id="ci-ascensore" onclick="toggleCheck('ascensore')">
+          <input type="checkbox" id="f-ascensore"> 🛗 Ascensore
+        </label>
+        <label class="check-item" id="ci-cantina" onclick="toggleCheck('cantina')">
+          <input type="checkbox" id="f-cantina"> 📦 Cantina
+        </label>
+        <label class="check-item" id="ci-parcheggio" onclick="toggleCheck('parcheggio')">
+          <input type="checkbox" id="f-parcheggio"> 🅿️ Parcheggio
+        </label>
+        <label class="check-item" id="ci-balcone" onclick="toggleCheck('balcone')">
+          <input type="checkbox" id="f-balcone"> 🌿 Balcone/terrazzo
+        </label>
+        <label class="check-item" id="ci-giardino" onclick="toggleCheck('giardino')">
+          <input type="checkbox" id="f-giardino"> 🌳 Giardino
+        </label>
+        <label class="check-item" id="ci-portineria" onclick="toggleCheck('portineria')">
+          <input type="checkbox" id="f-portineria"> 🔑 Portineria
+        </label>
+        <label class="check-item" id="ci-doppi-servizi" onclick="toggleCheck('doppi-servizi')">
+          <input type="checkbox" id="f-doppi-servizi"> 🚿 Doppi servizi
+        </label>
+        <label class="check-item" id="ci-cucina-abitabile" onclick="toggleCheck('cucina-abitabile')">
+          <input type="checkbox" id="f-cucina-abitabile"> 🍳 Cucina abitabile
+        </label>
+        <label class="check-item" id="ci-luminosa" onclick="toggleCheck('luminosa')">
+          <input type="checkbox" id="f-luminosa"> ☀️ Molto luminosa
+        </label>
+      </div>
+
+      <div class="sec">⭐ Gradimento personale</div>
+      <div class="star-input" id="star-input">
+        <button class="star-btn" data-v="1" onclick="setStar(1)">★</button>
+        <button class="star-btn" data-v="2" onclick="setStar(2)">★</button>
+        <button class="star-btn" data-v="3" onclick="setStar(3)">★</button>
+        <button class="star-btn" data-v="4" onclick="setStar(4)">★</button>
+        <button class="star-btn" data-v="5" onclick="setStar(5)">★</button>
+      </div>
+
+      <div class="sec">🏢 Agenzia e contatti</div>
+      <div class="form-row">
+        <div class="fg"><label>Agenzia immobiliare</label>
+          <input type="text" id="f-agenzia" placeholder="es. Tecnocasa, privato..."></div>
+        <div class="fg"><label>Referente / agente</label>
+          <input type="text" id="f-referente" placeholder="es. Marco, sig.ra Bianchi..."></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Telefono / email contatto</label>
+          <input type="text" id="f-contatto-info" placeholder="348 123 4567"></div>
+        <div class="fg"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Agenzia contattata?</label>
+          <div class="toggle-pair">
+            <button class="tgl sel-no" id="tb-con-si" onclick="setToggle('contattata',true)">📞 Sì, contattata</button>
+            <button class="tgl" id="tb-con-no" onclick="setToggle('contattata',false)">📵 Non ancora</button>
+          </div></div>
+        <div class="fg"><label>Casa già visitata?</label>
+          <div class="toggle-pair">
+            <button class="tgl sel-no" id="tb-vis-si" onclick="setToggle('visitata',true)">✅ Sì, visitata</button>
+            <button class="tgl" id="tb-vis-no" onclick="setToggle('visitata',false)">👁️ Non ancora</button>
+          </div></div>
+      </div>
+      <div class="form-row full">
+        <div class="fg"><label>Data visita (o appuntamento)</label>
+          <input type="text" id="f-data-visita" placeholder="es. 25 maggio ore 15:00"></div>
+      </div>
+
+      <div class="sec">📏 Distanze (minuti a piedi o in auto)</div>
+      <div class="form-row three">
+        <div class="fg"><label>🏫 Da scuola</label>
+          <input type="number" id="f-scuola" placeholder="10" min="0"></div>
+        <div class="fg"><label>🚂 Da stazione</label>
+          <input type="number" id="f-stazione" placeholder="5" min="0"></div>
+        <div class="fg"><label>🏙️ Dal centro</label>
+          <input type="number" id="f-centro" placeholder="8" min="0"></div>
+      </div>
+      <div class="form-row three">
+        <div class="fg"><label>🛒 Dal supermercato</label>
+          <input type="number" id="f-supermercato" placeholder="5" min="0"></div>
+        <div class="fg"><label>🏥 Dall'ospedale</label>
+          <input type="number" id="f-ospedale" placeholder="15" min="0"></div>
+        <div class="fg"><label>🚌 Dal bus/tram</label>
+          <input type="number" id="f-bus" placeholder="3" min="0"></div>
+      </div>
+
+      <div class="sec">✅ Lati positivi</div>
+      <div class="form-row full">
+        <div class="fg">
+          <textarea id="f-pro" placeholder="Es. luminosa, cucina spaziosa, zona tranquilla, ristrutturata..."></textarea>
+        </div>
+      </div>
+
+      <div class="sec">❌ Lati negativi</div>
+      <div class="form-row full">
+        <div class="fg">
+          <textarea id="f-contro" placeholder="Es. piano terra, vicino alla strada, riscaldamento autonomo, da ristrutturare..."></textarea>
+        </div>
+      </div>
+
+      <div class="sec">📝 Note libere</div>
+      <div class="form-row full">
+        <div class="fg">
+          <textarea id="f-note" placeholder="Qualsiasi cosa vuoi ricordare: sensazioni, domande da fare, dettagli..." style="min-height:55px;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-primary" onclick="saveHouse()">💾 Salva casa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONFIRM DELETE ─── -->
+<div class="confirm-dialog" id="confirm-dialog">
+  <div class="confirm-box">
+    <h4>🗑️ Elimina casa</h4>
+    <p>Sei sicura di voler eliminare questa casa? Non potrai recuperarla.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="cancelDelete()">Annulla</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Sì, elimina</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+// Firebase + Firestore integration (modular SDK)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Firebase config (for your project)
+const firebaseConfig = {
+  apiKey: "AIzaSyB64gb7FZeb96uDrDCBsocxx95Phmwnbhs",
+  authDomain: "cerca-casa-4b3d2.firebaseapp.com",
+  projectId: "cerca-casa-4b3d2",
+  storageBucket: "cerca-casa-4b3d2.firebasestorage.app",
+  messagingSenderId: "164968657649",
+  appId: "1:164968657649:web:2b4468b86bb808f47b2f50",
+  measurementId: "G-H94SK4V6MZ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+try{ const analytics = getAnalytics(app); }catch(e){}
+const db = getFirestore(app);
+const housesCol = collection(db, 'houses');
+
+// --- End Firebase init ---
+
+const STORAGE_KEY = 'casacaccia_v2';
+let houses = [];
+try { houses = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { houses = []; }
+let currentSort = 'data';
+let editingId = null;
+let deletingId = null;
+let currentStars = 0;
+let toggleState = { visitata: false, contattata: false };
+
+const FEATS = ['ascensore','cantina','parcheggio','balcone','giardino','portineria','doppi-servizi','cucina-abitabile','luminosa'];
+const FEAT_MAP = {
+  'ascensore': '🛗 Ascensore',
+  'cantina': '📦 Cantina',
+  'parcheggio': '🅿️ Parcheggio',
+  'balcone': '🌿 Balcone',
+  'giardino': '🌳 Giardino',
+  'portineria': '🔑 Portineria',
+  'doppi-servizi': '🚿 2 Servizi',
+  'cucina-abitabile': '🍳 Cucina abit.',
+  'luminosa': '☀️ Luminosa'
+};
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(houses)); }
+
+function toast(msg, ms=2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), ms);
+}
+
+function fmt(n) {
+  if(!n) return '—';
+  return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+}
+function fmtRatio(p,mq) {
+  if(!p||!mq) return '';
+  return fmt(Math.round(p/mq)) + '/m²';
+}
+
+function starsHTML(n) {
+  return Array.from({length:5},(_,i)=>`<span class="star ${i<n?'filled':''}">★</span>`).join('');
+}
+
+function renderCard(h, idx) {
+  const feats = FEATS.map(f => {
+    const has = !!h[f];
+    if(!has) return `<span class="feat-tag no">${FEAT_MAP[f]}</span>`;
+    return `<span class="feat-tag yes">${FEAT_MAP[f]}</span>`;
+  }).join('');
+
+  const proHTML = h.pro
+    ? h.pro.split('\n').filter(Boolean).map(l=>`• ${l}`).join('<br>')
+    : '<span class="pc-empty">nessuna nota</span>';
+  const controHTML = h.contro
+    ? h.contro.split('\n').filter(Boolean).map(l=>`• ${l}`).join('<br>')
+    : '<span class="pc-empty">nessuna nota</span>';
+
+  const hasLink = h.link && h.link.startsWith('http');
+  const ratio = fmtRatio(h.prezzo, h.mq);
+
+  const dists = [];
+  if(h.distScuola)     dists.push(`<span class="dist-item">🏫 <span class="dist-val">${h.distScuola} min</span></span>`);
+  if(h.distStazione)   dists.push(`<span class="dist-item">🚂 <span class="dist-val">${h.distStazione} min</span></span>`);
+  if(h.distCentro)     dists.push(`<span class="dist-item">🏙️ <span class="dist-val">${h.distCentro} min</span></span>`);
+  if(h.distSuper)      dists.push(`<span class="dist-item">🛒 <span class="dist-val">${h.distSuper} min</span></span>`);
+  if(h.distBus)        dists.push(`<span class="dist-item">🚌 <span class="dist-val">${h.distBus} min</span></span>`);
+
+  const classeEl = h.classe ? `<span class="badge" style="background:#EAF5EE;color:#2E7040;margin-left:4px;">${h.classe}</span>` : '';
+  const speseEl = h.spese ? `<span class="dist-item">💰 cond. <span class="dist-val">€${h.spese}/mese</span></span>` : '';
+
+  return `
+  <div class="card" id="card-${h.id}">
+    <div class="card-header">
+      <div class="card-num">${idx+1}</div>
+      <div class="card-title-area">
+        <div class="card-nome" title="${h.nome||''}">${h.nome||'Casa senza nome'}</div>
+        <div class="stars">${starsHTML(h.stelline||0)}</div>
+      </div>
+      <span class="badge badge-vis ${h.visitata?'yes':'no'}">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</span>
+    </div>
+
+    <div class="price-row">
+      <span class="prezzo">${fmt(h.prezzo)}</span>
+      ${h.mq?`<span class="mq-txt">📐 ${h.mq} m²</span>`:''}
+      ${ratio?`<span class="ratio">${ratio}</span>`:''}
+      ${classeEl}
+      ${h.piano?`<span class="piano-txt">${h.piano}</span>`:''}
+    </div>
+
+    <div class="features">${feats}</div>
+
+    <div class="meta-row">
+      <span class="agenzia-txt" title="${h.agenzia||''}">🏢 ${h.agenzia||'<span style="color:var(--tl);font-style:italic;">Agenzia n.d.</span>'}</span>
+      ${h.referente?`<span style="font-size:.74rem;color:var(--tl);">— ${h.referente}</span>`:''}
+      <span class="badge badge-con ${h.contattata?'yes':'no'}" style="margin-left:auto;">${h.contattata?'📞 Contattata':'📵 Non contattata'}</span>
+    </div>
+
+    ${h.dataVisita?`<div style="padding:.45rem 1.15rem;font-size:.74rem;color:var(--blue);border-bottom:1px solid var(--bd);">📅 Visita: ${h.dataVisita}</div>`:''}
+
+    ${dists.length||speseEl?`<div class="distances">${dists.join('')}${speseEl}</div>`:''}
+
+    <div class="pro-contro">
+      <div>
+        <div class="pc-label pro">✅ Pro</div>
+        <div class="pc-text">${proHTML}</div>
+      </div>
+      <div>
+        <div class="pc-label contro">❌ Contro</div>
+        <div class="pc-text">${controHTML}</div>
+      </div>
+    </div>
+
+    ${h.note?`<div class="note-txt">📝 ${h.note}</div>`:''}
+
+    <div class="card-actions">
+      ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank">🔗 Annuncio</a>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="editHouse('${h.id}')">✏️ Modifica</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="quickVisit('${h.id}')">${h.visitata?'↩️ Non visitata':'✅ Segna visitata'}</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteHouse('${h.id}')">🗑️</button>
+    </div>
+  </div>`;
+}
+
+function getSorted() {
+  const arr = [...houses];
+  switch(currentSort) {
+    case 'prezzo':   return arr.sort((a,b)=>(a.prezzo||Infinity)-(b.prezzo||Infinity));
+    case 'stelline': return arr.sort((a,b)=>(b.stelline||0)-(a.stelline||0));
+    case 'mq':       return arr.sort((a,b)=>(b.mq||0)-(a.mq||0));
+    case 'scuola':   return arr.sort((a,b)=>(a.distScuola||9999)-(b.distScuola||9999));
+    case 'stazione': return arr.sort((a,b)=>(a.distStazione||9999)-(b.distStazione||9999));
+    default:         return arr.sort((a,b)=>Number(b.id||0)-Number(a.id||0));
+  }
+}
+
+function renderStats() {
+  const bar = document.getElementById('stats-bar');
+  if(houses.length === 0){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  const prezzi = houses.filter(h=>h.prezzo>0).map(h=>h.prezzo);
+  const mqs = houses.filter(h=>h.mq>0).map(h=>h.mq);
+  const visitate = houses.filter(h=>h.visitata).length;
+  const stelleTot = houses.filter(h=>h.stelline>0);
+  const avgStelle = stelleTot.length ? (stelleTot.reduce((s,h)=>s+h.stelline,0)/stelleTot.length).toFixed(1) : '—';
+  const minP = prezzi.length ? fmt(Math.min(...prezzi)) : '—';
+  const maxP = prezzi.length ? fmt(Math.max(...prezzi)) : '—';
+  const avgMq = mqs.length ? Math.round(mqs.reduce((s,m)=>s+m,0)/mqs.length) : '—';
+  bar.innerHTML = `
+    <span class="stat">Prezzi: <strong>${minP} — ${maxP}</strong></span>
+    <span class="stat">Media m²: <strong>${avgMq}${avgMq!=='—'?' m²':''}</strong></span>
+    <span class="stat">Visitate: <strong>${visitate} / ${houses.length}</strong></span>
+    <span class="stat">Gradimento medio: <strong>${avgStelle}${avgStelle!=='—'?' ⭐':''}</strong></span>`;
+}
+
+function render() {
+  const grid = document.getElementById('grid');
+  const sorted = getSorted();
+  const pl = sorted.length===1?'casa':'case';
+  document.getElementById('count-badge').textContent = `${sorted.length} ${pl}`;
+  renderStats();
+  if(sorted.length===0){
+    grid.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">🏡</div>
+      <h3>Nessuna casa ancora</h3>
+      <p>Inizia aggiungendo le case che ti interessano — tutto salvato sul tuo browser!</p>
+      <button class="btn btn-primary" onclick="openModal()">+ Aggiungi la prima casa</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = sorted.map((h,i)=>renderCard(h,i)).join('');
+}
+
+function setSort(s) {
+  currentSort = s;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  const el = document.getElementById('pill-'+s);
+  if(el) el.classList.add('active');
+  render();
+}
+
+/* ─── MODAL ─── */
+function openModal(id=null) {
+  editingId = id;
+  resetForm();
+  document.getElementById('modal-title').textContent = id ? 'Modifica casa' : 'Aggiungi casa';
+  if(id) {
+    const h = houses.find(x=>x.id===id);
+    if(!h) return;
+    const fields = ['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola','stazione','centro','supermercato','ospedale','bus','pro','contro','note','data-visita'];
+    const hMap = {
+      'nome':h.nome,'link':h.link,'prezzo':h.prezzo||'','mq':h.mq||'',
+      'agenzia':h.agenzia,'piano':h.piano,'indirizzo':h.indirizzo,'anno':h.anno||'',
+      'spese':h.spese||'','referente':h.referente,'contatto-info':h.contattoInfo,
+      'scuola':h.distScuola||'','stazione':h.distStazione||'','centro':h.distCentro||'',
+      'supermercato':h.distSuper||'','ospedale':h.distOspedale||'','bus':h.distBus||'',
+      'pro':h.pro,'contro':h.contro,'note':h.note,'data-visita':h.dataVisita
+    };
+    fields.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=hMap[f]||''; });
+    const cl=document.getElementById('f-classe'); if(cl) cl.value=h.classe||'';
+    FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=!!h[f]; refreshCI(f); }});
+    setStar(h.stelline||0);
+    setToggle('visitata',!!h.visitata,true);
+    setToggle('contattata',!!h.contattata,true);
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function resetForm() {
+  const fields=['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola','stazione','centro','supermercato','ospedale','bus','pro','contro','note','data-visita'];
+  fields.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=''; });
+  const cl=document.getElementById('f-classe'); if(cl) cl.value='';
+  FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=false; refreshCI(f); }});
+  currentStars=0; updateStarDisplay();
+  toggleState={visitata:false,contattata:false};
+  updateToggleDisplay('visitata'); updateToggleDisplay('contattata');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  editingId=null;
+}
+
+function closeOnOverlay(e){ if(e.target.id==='modal-overlay') closeModal(); }
+
+/* checkboxes */
+function toggleCheck(feat) {
+  const el=document.getElementById('f-'+feat);
+  if(el){ el.checked=!el.checked; refreshCI(feat); }
+}
+function refreshCI(feat) {
+  const el=document.getElementById('f-'+feat);
+  const ci=document.getElementById('ci-'+feat);
+  if(ci) ci.classList.toggle('on', el&&el.checked);
+}
+
+/* stars */
+function setStar(n){ currentStars=n; updateStarDisplay(); }
+function updateStarDisplay(){
+  document.querySelectorAll('.star-btn').forEach(b=>{
+    b.classList.toggle('on', parseInt(b.dataset.v)<=currentStars);
+  });
+}
+
+/* toggles */
+function setToggle(field,val,fromLoad=false){
+  toggleState[field]=val;
+  updateToggleDisplay(field);
+}
+function updateToggleDisplay(field){
+  const val=toggleState[field];
+  if(field==='visitata'){
+    document.getElementById('tb-vis-si').className='tgl '+(val?'sel-yes':'sel-no');
+    document.getElementById('tb-vis-no').className='tgl '+(!val?'sel-yes':'sel-no');
+  } else {
+    document.getElementById('tb-con-si').className='tgl '+(val?'sel-yes':'sel-no');
+    document.getElementById('tb-con-no').className='tgl '+(!val?'sel-yes':'sel-no');
+  }
+}
+
+async function saveHouse() {
+  const g=id=>document.getElementById('f-'+id);
+  const v=id=>g(id)?g(id).value.trim():'';
+  const n=id=>parseFloat(g(id)?g(id).value:0)||0;
+
+  const nome = v('nome') || 'Casa senza nome';
+  const h = {
+    id: editingId || String(Date.now()),
+    nome, link:v('link'), prezzo:n('prezzo'), mq:n('mq'),
+    agenzia:v('agenzia'), piano:v('piano'), indirizzo:v('indirizzo'),
+    anno:n('anno'), spese:n('spese'), referente:v('referente'),
+    contattoInfo:v('contatto-info'), classe:v('classe'),
+    distScuola:n('scuola'), distStazione:n('stazione'), distCentro:n('centro'),
+    distSuper:n('supermercato'), distOspedale:n('ospedale'), distBus:n('bus'),
+    pro:v('pro'), contro:v('contro'), note:v('note'), dataVisita:v('data-visita'),
+    stelline:currentStars, visitata:toggleState.visitata, contattata:toggleState.contattata,
+  };
+  FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); h[f]=el?el.checked:false; });
+
+  try{
+    await setDoc(doc(db, 'houses', String(h.id)), h);
+    toast(editingId? '✅ Casa aggiornata!' : '🏠 Casa aggiunta!');
+    closeModal();
+  } catch(e){
+    console.error('Firestore save error', e);
+    // fallback to local
+    if(editingId){
+      const idx=houses.findIndex(x=>x.id===editingId);
+      if(idx>-1) houses[idx]=h;
+      toast('✅ Casa aggiornata (locale)');
+    } else {
+      houses.push(h); toast('🏠 Casa aggiunta (locale)');
+    }
+    save(); render(); closeModal();
+  }
+}
+
+function editHouse(id){ openModal(id); }
+
+async function quickVisit(id){
+  const h=houses.find(x=>x.id===id);
+  if(!h) return;
+  const updated = {...h, visitata:!h.visitata};
+  try{
+    await setDoc(doc(db,'houses',String(id)), updated);
+    toast(updated.visitata?'✅ Segnata come visitata!':'↩️ Rimossa dal visitato');
+  } catch(e){
+    console.error('Firestore update error', e);
+    h.visitata = !h.visitata; save(); render(); toast(h.visitata?'✅ Segnata come visitata!':'↩️ Rimossa dal visitato');
+  }
+}
+
+function deleteHouse(id){ deletingId=id; document.getElementById('confirm-dialog').classList.add('open'); }
+function cancelDelete(){ deletingId=null; document.getElementById('confirm-dialog').classList.remove('open'); }
+async function confirmDelete(){
+  try{
+    await deleteDoc(doc(db,'houses',String(deletingId)));
+    toast('🗑️ Casa eliminata');
+  } catch(e){
+    console.error('Firestore delete error', e);
+    houses=houses.filter(x=>x.id!==deletingId); save(); render(); toast('🗑️ Casa eliminata (locale)');
+  }
+  deletingId=null;
+  document.getElementById('confirm-dialog').classList.remove('open');
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(houses,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`casacaccia_${new Date().toISOString().slice(0,10)}.json`; a.click();
+  toast('💾 Dati esportati!');
+}
+
+// Keyboard ESC
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+// Subscribe to Firestore collection and keep local backup in localStorage
+function subscribeToFirestore(){
+  try{
+    onSnapshot(housesCol, snapshot=>{
+      const arr = snapshot.docs.map(d=>({ id: d.id, ...d.data() }));
+      houses = arr;
+      save(); render();
+    }, err=>{
+      console.error('onSnapshot error', err);
+      // keep local data
+      render();
+    });
+  }catch(e){
+    console.error('Firestore subscribe error', e);
+    render();
+  }
+}
+
+subscribeToFirestore();
+render();
+</script>
+</body>
+</html>
