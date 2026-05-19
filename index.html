@@ -6,7 +6,9 @@
 <title>Casa Caccia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="icon" href="icon.png">
+  <link rel="icon" href="icon.png" sizes="any" type="image/png">
+  <link rel="icon" href="icon.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icon.png" sizes="180x180">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#F9F5EF">
 <style>
@@ -202,7 +204,7 @@ a.btn{display:inline-flex;}
     <div class="site-subtitle">Il tuo diario della ricerca casa</div>
   </div>
   <div class="header-actions">
-    <button id="auth-btn" class="btn btn-primary" onclick="toggleAuth()">Accedi con Google</button>
+    <button id="auth-btn" class="btn btn-primary" onclick="toggleAuth()" style="gap:8px;"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.1 33.6 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.1 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.4-.2-2.7-.5-4z"/></svg> Accedi con Google</button>
     <button class="btn btn-ghost" onclick="exportData()" title="Esporta JSON">💾 Esporta</button>
     <button class="btn btn-primary" onclick="openModal()">+ Aggiungi casa</button>
   </div>
@@ -271,32 +273,32 @@ a.btn{display:inline-flex;}
 
       <div class="sec">🔧 Caratteristiche</div>
       <div class="checks-grid">
-        <label class="check-item" id="ci-ascensore" onclick="toggleCheck('ascensore')">
-          <input type="checkbox" id="f-ascensore"> 🛗 Ascensore
+        <label class="check-item" id="ci-ascensore">
+          <input type="checkbox" id="f-ascensore" onchange="refreshCI('ascensore')"> 🛗 Ascensore
         </label>
-        <label class="check-item" id="ci-cantina" onclick="toggleCheck('cantina')">
-          <input type="checkbox" id="f-cantina"> 📦 Cantina
+        <label class="check-item" id="ci-cantina">
+          <input type="checkbox" id="f-cantina" onchange="refreshCI('cantina')"> 📦 Cantina
         </label>
-        <label class="check-item" id="ci-parcheggio" onclick="toggleCheck('parcheggio')">
-          <input type="checkbox" id="f-parcheggio"> 🅿️ Parcheggio
+        <label class="check-item" id="ci-parcheggio">
+          <input type="checkbox" id="f-parcheggio" onchange="refreshCI('parcheggio')"> 🅿️ Parcheggio
         </label>
-        <label class="check-item" id="ci-balcone" onclick="toggleCheck('balcone')">
-          <input type="checkbox" id="f-balcone"> 🌿 Balcone/terrazzo
+        <label class="check-item" id="ci-balcone">
+          <input type="checkbox" id="f-balcone" onchange="refreshCI('balcone')"> 🌿 Balcone/terrazzo
         </label>
-        <label class="check-item" id="ci-giardino" onclick="toggleCheck('giardino')">
-          <input type="checkbox" id="f-giardino"> 🌳 Giardino
+        <label class="check-item" id="ci-giardino">
+          <input type="checkbox" id="f-giardino" onchange="refreshCI('giardino')"> 🌳 Giardino
         </label>
-        <label class="check-item" id="ci-portineria" onclick="toggleCheck('portineria')">
-          <input type="checkbox" id="f-portineria"> 🔑 Portineria
+        <label class="check-item" id="ci-portineria">
+          <input type="checkbox" id="f-portineria" onchange="refreshCI('portineria')"> 🔑 Portineria
         </label>
-        <label class="check-item" id="ci-doppi-servizi" onclick="toggleCheck('doppi-servizi')">
-          <input type="checkbox" id="f-doppi-servizi"> 🚿 Doppi servizi
+        <label class="check-item" id="ci-doppi-servizi">
+          <input type="checkbox" id="f-doppi-servizi" onchange="refreshCI('doppi-servizi')"> 🚿 Doppi servizi
         </label>
-        <label class="check-item" id="ci-cucina-abitabile" onclick="toggleCheck('cucina-abitabile')">
-          <input type="checkbox" id="f-cucina-abitabile"> 🍳 Cucina abitabile
+        <label class="check-item" id="ci-cucina-abitabile">
+          <input type="checkbox" id="f-cucina-abitabile" onchange="refreshCI('cucina-abitabile')"> 🍳 Cucina abitabile
         </label>
-        <label class="check-item" id="ci-luminosa" onclick="toggleCheck('luminosa')">
-          <input type="checkbox" id="f-luminosa"> ☀️ Molto luminosa
+        <label class="check-item" id="ci-luminosa">
+          <input type="checkbox" id="f-luminosa" onchange="refreshCI('luminosa')"> ☀️ Molto luminosa
         </label>
       </div>
 
@@ -404,7 +406,7 @@ a.btn{display:inline-flex;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, signInWithPopup, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 // Firebase config (for your project)
 const firebaseConfig = {
@@ -430,12 +432,29 @@ let unsubscribeFirestore = null;
 function updateAuthButton(user){
   const btn = document.getElementById('auth-btn');
   if(!btn) return;
-  if(user){ btn.textContent = (user.displayName || 'Account') + ' ⎋'; btn.className='btn btn-ghost'; }
-  else { btn.textContent = 'Accedi con Google'; btn.className='btn btn-primary'; }
+  if(user){
+    const avatar = user.photoURL
+      ? `<img src="${user.photoURL}" referrerpolicy="no-referrer" width="24" height="24" style="border-radius:50%;flex-shrink:0;border:2px solid var(--green);">`
+      : `<span style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;">${(user.displayName||'U')[0].toUpperCase()}</span>`;
+    btn.innerHTML = `${avatar}<span style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.displayName||'Account'}</span><span style="opacity:.6;font-size:.78em;flex-shrink:0;">Esci ⎋</span>`;
+    btn.className='btn btn-ghost';
+    btn.style.cssText='border-color:var(--green);color:var(--green);gap:7px;';
+  } else {
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0"><path fill="var(--tc)" d="M44.5 20H24v8.5h11.8C34.1 33.6 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.1 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.4-.2-2.7-.5-4z"/></svg> Accedi con Google`;
+    btn.className='btn btn-primary';
+    btn.style.cssText='gap:8px;';
+  }
 }
 
 async function signInGoogle(){
-  try{ await signInWithRedirect(auth, provider); }
+  try{
+    // Use popup when running on localhost for easier developer flow
+    if(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'){
+      await signInWithPopup(auth, provider);
+    } else {
+      await signInWithRedirect(auth, provider);
+    }
+  }
   catch(e){ console.error('Google sign-in failed', e); alert('Accesso fallito: '+e.message); }
 }
 
