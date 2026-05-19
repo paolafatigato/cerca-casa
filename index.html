@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Casa Caccia</title>
+<title>Casa Choose</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="icon" href="icon.png" sizes="any" type="image/png">
@@ -210,9 +210,11 @@ a.btn{display:inline-flex;}
 
 <header class="site-header">
   <div class="logo">
-    <img src="icon.png" alt="Casa Caccia logo" width="48" height="48" style="border-radius:8px;object-fit:cover;">
-    <div class="site-title">Casa Caccia</div>
-    <div class="site-subtitle">Il tuo diario della ricerca casa</div>
+    <img src="icon.png" alt="Casa Caccia logo" width="40" height="40" style="border-radius:8px;object-fit:cover;flex-shrink:0;">
+    <div>
+      <div class="site-title">Casa Caccia</div>
+      <div class="site-subtitle">Il tuo diario della ricerca casa</div>
+    </div>
   </div>
   <div class="header-actions">
     <button id="auth-btn" class="btn btn-primary" onclick="toggleAuth()" style="gap:8px;"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="flex-shrink:0"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.1 33.6 29.6 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.1 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.4-.2-2.7-.5-4z"/></svg> <span class="hdr-txt">Accedi con Google</span></button>
@@ -235,6 +237,7 @@ a.btn{display:inline-flex;}
 </div>
 
 <div class="stats-bar" id="stats-bar" style="display:none;"></div>
+<div id="perm-banner" style="display:none;background:#FFF3CD;border-top:1px solid #F5C842;border-bottom:1px solid #F5C842;color:#7A5C00;padding:.7rem 2rem;font-size:.82rem;">⚠️ <strong>Errore permessi Firestore</strong> — I dati non vengono caricati dal cloud. Devi aggiornare le regole Firestore nel <a href="https://console.firebase.google.com" target="_blank" style="color:#7A5C00;font-weight:600;">Firebase Console</a>.</div>
 
 <div class="grid" id="grid"></div>
 
@@ -504,6 +507,7 @@ let editingId = null;
 let deletingId = null;
 let currentStars = 0;
 let toggleState = { visitata: false, contattata: false };
+let firestorePermError = false;
 
 const FEATS = ['ascensore','cantina','parcheggio','balcone','giardino','portineria','doppi-servizi','cucina-abitabile','luminosa'];
 const FEAT_MAP = {
@@ -658,12 +662,22 @@ function render() {
   document.getElementById('count-badge').textContent = `${sorted.length} ${pl}`;
   renderStats();
   if(sorted.length===0){
-    grid.innerHTML=`<div class="empty-state">
-      <div class="empty-icon">🏡</div>
-      <h3>Nessuna casa ancora</h3>
-      <p>Inizia aggiungendo le case che ti interessano — tutto salvato sul tuo browser!</p>
-      <button class="btn btn-primary" onclick="openModal()">+ Aggiungi la prima casa</button>
-    </div>`;
+    if(firestorePermError){
+      grid.innerHTML=`<div class="empty-state">
+        <div class="empty-icon">🔒</div>
+        <h3>Permessi Firebase mancanti</h3>
+        <p>Sei loggata ma Firestore nega l'accesso. Devi aggiornare le regole nel Firebase Console.</p>
+        <p style="font-size:.78rem;color:var(--tl);margin-top:.5rem;">Vai su <strong>Firebase Console → Firestore Database → Regole</strong> e incolla le regole indicate nella documentazione.</p>
+        <a class="btn btn-primary" href="https://console.firebase.google.com" target="_blank" style="margin-top:1rem;">Apri Firebase Console</a>
+      </div>`;
+    } else {
+      grid.innerHTML=`<div class="empty-state">
+        <div class="empty-icon">🏡</div>
+        <h3>Nessuna casa ancora</h3>
+        <p>Inizia aggiungendo le case che ti interessano — tutto salvato sul tuo browser!</p>
+        <button class="btn btn-primary" onclick="openModal()">+ Aggiungi la prima casa</button>
+      </div>`;
+    }
     return;
   }
   grid.innerHTML = sorted.map((h,i)=>renderCard(h,i)).join('');
@@ -853,6 +867,11 @@ function subscribeToFirestoreForUser(uid){
       save(); render();
     }, err=>{
       console.error('onSnapshot error', err);
+      if(err.code === 'permission-denied') {
+        firestorePermError = true;
+        const b = document.getElementById('perm-banner');
+        if(b) b.style.display = 'block';
+      }
       render();
     });
   }catch(e){
