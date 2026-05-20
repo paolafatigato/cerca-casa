@@ -364,8 +364,8 @@ a.btn{display:inline-flex;}
           </div></div>
       </div>
       <div class="form-row full">
-        <div class="fg"><label>Data visita (o appuntamento)</label>
-          <input type="text" id="f-data-visita" placeholder="es. 25 maggio ore 15:00"></div>
+        <div class="fg"><label>📅 Data e ora visita</label>
+          <input type="datetime-local" id="f-data-visita"></div>
       </div>
 
       <div class="sec">📏 Distanze (minuti)</div>
@@ -486,7 +486,9 @@ const db = getFirestore(app);
 // --- Auth (Google) ---
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+provider.addScope('https://www.googleapis.com/auth/calendar.events');
 let authUid = null;
+let gcalToken = sessionStorage.getItem('gcal_token') || null;
 let unsubscribeFirestore = null;
 
 function updateAuthButton(user){
@@ -509,7 +511,12 @@ function updateAuthButton(user){
 async function signInGoogle(){
   try{
     // Try popup first — works on modern desktop and mobile Chrome/Safari
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if(credential && credential.accessToken){
+      gcalToken = credential.accessToken;
+      sessionStorage.setItem('gcal_token', gcalToken);
+    }
   } catch(e){
     if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
       // Popup was blocked or dismissed — fall back to redirect (works on all mobile browsers)
@@ -540,7 +547,7 @@ function toggleAuth(){ if(auth.currentUser) signOutUser(); else signInGoogle(); 
 
 onAuthStateChanged(auth, user=>{
   if(user){ authUid = user.uid; console.log('Signed in', authUid); updateAuthButton(user); subscribeToFirestoreForUser(authUid); }
-  else { authUid = null; updateAuthButton(null); if(unsubscribeFirestore) { unsubscribeFirestore(); unsubscribeFirestore=null; } houses = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); render(); }
+  else { authUid = null; gcalToken = null; sessionStorage.removeItem('gcal_token'); updateAuthButton(null); if(unsubscribeFirestore) { unsubscribeFirestore(); unsubscribeFirestore=null; } houses = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); render(); }
 });
 
 // --- End Firebase init ---
@@ -655,7 +662,7 @@ function renderCard(h, idx) {
       <span class="badge badge-con ${h.contattata?'yes':'no'}" style="margin-left:auto;">${h.contattata?'📞 Contattata':'📵 Non contattata'}</span>
     </div>
 
-    ${h.dataVisita?`<div style="padding:.45rem 1.15rem;font-size:.74rem;color:var(--blue);border-bottom:1px solid var(--bd);">📅 Visita: ${h.dataVisita}</div>`:''}
+    ${h.dataVisita?`<div style="padding:.45rem 1.15rem;font-size:.74rem;color:var(--blue);border-bottom:1px solid var(--bd);">📅 Visita: ${fmtDate(h.dataVisita)}</div>`:''}
 
     ${dists.length||speseEl?`<div class="distances">${dists.join('')}${speseEl}</div>`:''}
 
@@ -675,6 +682,7 @@ function renderCard(h, idx) {
     <div class="card-actions">
       ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank" onclick="event.stopPropagation()">🔗 Annuncio</a>`:''}
       <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editHouse('${h.id}')">✏️ Modifica</button>
+      ${h.dataVisita?`<button class="btn btn-ghost btn-sm" title="Aggiungi al Google Calendar" onclick="event.stopPropagation(); addToCalendar('${h.id}')">📅 Cal.</button>`:''}
       <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="event.stopPropagation(); quickVisit('${h.id}')">${h.visitata?'↩️ Non visitata':'✅ Segna visitata'}</button>
       <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteHouse('${h.id}')">🗑️</button>
     </div>
@@ -831,6 +839,67 @@ function updateToggleDisplay(field){
   }
 }
 
+function fmtDate(dt) {
+  if(!dt) return '';
+  try {
+    const d = new Date(dt);
+    if(isNaN(d.getTime())) return dt; // fallback per vecchie voci in testo libero
+    return d.toLocaleString('it-IT', { weekday:'short', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return dt; }
+}
+
+async function addToCalendar(idOrHouse) {
+  const h = (typeof idOrHouse === 'object') ? idOrHouse : houses.find(x => x.id === idOrHouse);
+  if(!h || !h.dataVisita){ toast('📅 Nessuna data di visita impostata'); return; }
+  // Verifica che sia un datetime-local valido (non testo libero)
+  const startDate = new Date(h.dataVisita);
+  if(isNaN(startDate.getTime())){
+    toast('📅 Apri la casa, imposta la data con il selettore e salva di nuovo', 3500);
+    return;
+  }
+  if(!gcalToken){
+    toast('🔑 Riaccedi con Google per usare il calendario', 3000);
+    return;
+  }
+  const startStr = h.dataVisita;                                         // "2026-05-25T15:00"
+  const endStr   = new Date(startDate.getTime() + 60*60*1000)
+                     .toISOString().slice(0,16);                          // +1 ora
+  const event = {
+    summary:  h.nome || 'Visita casa',
+    location: h.indirizzo || '',
+    description: [
+      h.prezzo      ? `💰 Prezzo: €${Number(h.prezzo).toLocaleString('it-IT')}` : '',
+      h.mq          ? `📐 ${h.mq} m²`          : '',
+      h.agenzia     ? `🏢 ${h.agenzia}`         : '',
+      h.referente   ? `👤 ${h.referente}`        : '',
+      h.contattoInfo? `📞 ${h.contattoInfo}`     : '',
+      h.link        ? `🔗 ${h.link}`            : '',
+      h.note        ? `📝 ${h.note}`            : ''
+    ].filter(Boolean).join('\n'),
+    start: { dateTime: startStr + ':00', timeZone: 'Europe/Rome' },
+    end:   { dateTime: endStr   + ':00', timeZone: 'Europe/Rome' }
+  };
+  try {
+    const resp = await fetch(
+      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+      { method:'POST', headers:{ 'Authorization':'Bearer '+gcalToken, 'Content-Type':'application/json' },
+        body: JSON.stringify(event) }
+    );
+    const data = await resp.json();
+    if(!resp.ok) throw new Error(data.error?.message || String(resp.status));
+    toast('📅 Evento aggiunto al Google Calendar!', 3000);
+  } catch(e) {
+    console.error('Calendar API error', e);
+    const msg = String(e.message || e);
+    if(msg.includes('401') || msg.includes('403') || msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('invalid')){
+      gcalToken = null; sessionStorage.removeItem('gcal_token');
+      toast('🔑 Token scaduto — esci e rientra con Google', 3500);
+    } else {
+      toast('Errore Calendar: ' + msg.slice(0,70), 3500);
+    }
+  }
+}
+
 async function saveHouse() {
   const g=id=>document.getElementById('f-'+id);
   const v=id=>g(id)?g(id).value.trim():'';
@@ -857,6 +926,7 @@ async function saveHouse() {
       await setDoc(doc(db, 'users', authUid, 'houses', String(h.id)), h);
       toast(editingId? '✅ Casa aggiornata!' : '🏠 Casa aggiunta!');
       closeModal();
+      if(!editingId && h.dataVisita) addToCalendar(h);
       return;
     } catch(e){
       console.error('Firestore save error', e);
@@ -870,6 +940,7 @@ async function saveHouse() {
     toast('✅ Casa aggiornata (locale)');
   } else { houses.push(h); toast('🏠 Casa aggiunta (locale)'); }
   save(); render(); closeModal();
+  if(!editingId && h.dataVisita) addToCalendar(h);
 }
 
 function editHouse(id){ openModal(id); }
@@ -976,6 +1047,7 @@ window.deleteHouse = deleteHouse;
 window.cancelDelete = cancelDelete;
 window.confirmDelete = confirmDelete;
 window.toggleCheck = toggleCheck;
+window.addToCalendar = addToCalendar;
 render();
 </script>
 </body>
