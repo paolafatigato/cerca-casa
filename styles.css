@@ -334,3 +334,32 @@ a.btn-ghost:not(.site-header a):hover {
   border-color: rgba(240,45,116,.40);
   font-weight: 600;
 }
+
+/* ══════════════════════════════════════════
+   MODAL TABS — violet theme override
+   ══════════════════════════════════════════ */
+.modal-tabs {
+  background: linear-gradient(180deg, #fdf5ff 0%, var(--floral-white) 100%);
+  border-bottom-color: rgba(144,25,255,.15);
+}
+.modal-tab.active {
+  color: var(--violet-ray);
+  border-bottom-color: var(--violet-ray);
+  background: #fff;
+}
+.modal-tab:hover:not(.active) {
+  color: var(--violet-ray);
+  background: rgba(144,25,255,.05);
+}
+
+/* Visit question notes */
+.vq-note {
+  background: #fdf8ff;
+  border-color: rgba(144,25,255,.18);
+  color: var(--td);
+}
+.vq-note:focus {
+  border-color: var(--violet-ray);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(144,25,255,.10);
+}

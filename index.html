@@ -217,6 +217,21 @@ a.btn{display:inline-flex;}
   .pro-contro{grid-template-columns:1fr 1fr;gap:.5rem;}
   #perm-banner{padding:.65rem 1rem;}
 }
+
+/* ── MODAL TABS ── */
+.modal-tabs{display:flex;border-bottom:2px solid var(--bd);background:var(--cream);border-radius:0;}
+.modal-tab{flex:1;padding:.58rem 1rem;font-size:.82rem;font-weight:500;cursor:pointer;background:none;border:none;border-bottom:3px solid transparent;color:var(--tl);transition:all .15s;font-family:'DM Sans',sans-serif;margin-bottom:-2px;}
+.modal-tab.active{color:var(--tc);border-bottom-color:var(--tc);background:var(--white);}
+.modal-page{display:none;}
+.modal-page.active{display:block;}
+
+/* ── VISIT QUESTIONS ── */
+.vq-list{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.65rem;}
+.vq-item{display:flex;flex-direction:column;gap:.25rem;}
+.vq-note{padding:.3rem .65rem;border:1px solid var(--bds);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--td);background:var(--cream);width:100%;outline:none;transition:border-color .15s;}
+.vq-note:focus{border-color:var(--tc-m);background:#fff;}
+.vq-note::placeholder{color:var(--tl);font-size:.77rem;}
+.vq-inline{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin-top:.2rem;}
 </style>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -263,8 +278,12 @@ a.btn{display:inline-flex;}
       <div class="modal-title" id="modal-title">Aggiungi casa</div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-casa" onclick="switchModalTab('casa')">🏠 Dati casa</button>
+      <button class="modal-tab" id="tab-visita" onclick="switchModalTab('visita')">📋 Domande visita</button>
+    </div>
     <div class="modal-body">
-
+      <div id="page-casa" class="modal-page active">
       <div class="sec">📍 Informazioni generali</div>
       <div class="form-row full">
         <div class="fg"><label>Nome / etichetta *</label>
@@ -281,12 +300,6 @@ a.btn{display:inline-flex;}
           <input type="number" id="f-mq" placeholder="75" min="0"></div>
         <div class="fg"><label>Piano</label>
           <input type="text" id="f-piano" placeholder="es. 3° su 5"></div>
-      </div>
-      <div class="form-row">
-        <div class="fg"><label>Indirizzo / zona</label>
-          <input type="text" id="f-indirizzo" placeholder="Via Roma, Piacenza"></div>
-        <div class="fg"><label>Anno costruzione</label>
-          <input type="number" id="f-anno" placeholder="1980" min="1900" max="2030"></div>
       </div>
       <div class="form-row">
         <div class="fg"><label>Classe energetica</label>
@@ -447,7 +460,163 @@ a.btn{display:inline-flex;}
           <textarea id="f-note" placeholder="Qualsiasi cosa vuoi ricordare: sensazioni, domande da fare, dettagli..." style="min-height:55px;"></textarea>
         </div>
       </div>
-    </div>
+      </div><!-- /page-casa -->
+
+      <div id="page-visita" class="modal-page">
+
+        <div class="sec">🏗️ Struttura e impianti</div>
+        <div class="form-row">
+          <div class="fg"><label>Anno di costruzione</label>
+            <input type="number" id="f-vis-anno" placeholder="1980" min="1900" max="2030"></div>
+          <div class="fg"><label>Ristrutturato?</label>
+            <div class="toggle-pair">
+              <button class="tgl sel-no" id="tb-rist-si" onclick="setVisToggle('ristrutturato',true)">✅ Sì</button>
+              <button class="tgl sel-no" id="tb-rist-no" onclick="setVisToggle('ristrutturato',false)">❌ No</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="checks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.35rem;">
+          <label class="check-item" id="ci-vis-umidita">
+            <input type="checkbox" id="f-vis-umidita" onchange="refreshCI('vis-umidita')"> 💧 Umidità / muffe
+          </label>
+          <label class="check-item" id="ci-vis-serramenti">
+            <input type="checkbox" id="f-vis-serramenti" onchange="refreshCI('vis-serramenti')"> 🪟 Serramenti termici
+          </label>
+          <label class="check-item" id="ci-vis-impianto">
+            <input type="checkbox" id="f-vis-impianto" onchange="refreshCI('vis-impianto')"> ⚡ Impianto el. a norma
+          </label>
+          <label class="check-item" id="ci-vis-caldaia">
+            <input type="checkbox" id="f-vis-caldaia" onchange="refreshCI('vis-caldaia')"> 🔧 Caldaia presente
+          </label>
+          <label class="check-item" id="ci-vis-condiz">
+            <input type="checkbox" id="f-vis-condiz" onchange="refreshCI('vis-condiz')"> ❄️ Pred. condizionatore
+          </label>
+          <label class="check-item" id="ci-vis-fibra">
+            <input type="checkbox" id="f-vis-fibra" onchange="refreshCI('vis-fibra')"> 🌐 Pred. fibra ottica
+          </label>
+        </div>
+
+        <div class="vq-list">
+          <input type="text" id="f-vis-umidita-note" class="vq-note" placeholder="💧 Dove si vede umidità / muffa?">
+          <input type="text" id="f-vis-impianto-note" class="vq-note" placeholder="⚡ Anno impianto elettrico / ha certificazione?">
+          <div class="vq-inline">
+            <span style="font-size:.78rem;color:var(--tm);font-weight:500;">🔧 Caldaia:</span>
+            <input type="number" id="f-vis-caldaia-anno" class="compact-input" placeholder="anno" min="1980" max="2030" style="width:5rem;">
+            <label class="check-item" id="ci-vis-caldaia-inc" style="flex:1;font-size:.78rem;padding:.35rem .6rem;">
+              <input type="checkbox" id="f-vis-caldaia-inc" onchange="refreshCI('vis-caldaia-inc')"> inclusa nella vendita
+            </label>
+          </div>
+        </div>
+
+        <div class="fg" style="margin-bottom:.75rem;">
+          <label>🔥 Riscaldamento</label>
+          <div class="toggle-pair" style="max-width:280px;margin-bottom:.35rem;">
+            <button class="tgl sel-no" id="tb-risc-aut" onclick="setVisRisc('autonomo')">🏠 Autonomo</button>
+            <button class="tgl sel-no" id="tb-risc-cent" onclick="setVisRisc('centralizzato')">🏢 Centralizzato</button>
+          </div>
+          <input type="text" id="f-vis-risc-note" class="vq-note" placeholder="Ripartizione spese? Morosità? (se centralizzato)">
+        </div>
+
+        <div class="sec">🏢 Condominio</div>
+        <div class="vq-list">
+          <div class="vq-item">
+            <label class="check-item" id="ci-vis-lavori">
+              <input type="checkbox" id="f-vis-lavori" onchange="refreshCI('vis-lavori')"> 🔨 Lavori condominiali deliberati o in programma
+            </label>
+            <input type="text" id="f-vis-lavori-note" class="vq-note" placeholder="Quali? Importo stimato?">
+          </div>
+          <div class="vq-item">
+            <label class="check-item" id="ci-vis-spese-str">
+              <input type="checkbox" id="f-vis-spese-str" onchange="refreshCI('vis-spese-str')"> 💸 Spese straordinarie in sospeso
+            </label>
+            <input type="text" id="f-vis-spese-str-note" class="vq-note" placeholder="Importo / dettagli">
+          </div>
+          <div class="checks-grid" style="grid-template-columns:1fr 1fr;">
+            <label class="check-item" id="ci-vis-litigioso">
+              <input type="checkbox" id="f-vis-litigioso" onchange="refreshCI('vis-litigioso')"> ⚠️ Condominio litigioso
+            </label>
+            <label class="check-item" id="ci-vis-amm">
+              <input type="checkbox" id="f-vis-amm" onchange="refreshCI('vis-amm')"> 👤 Ha amministratore
+            </label>
+          </div>
+        </div>
+
+        <div class="sec">📋 Aspetti legali</div>
+        <div class="checks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.35rem;">
+          <label class="check-item" id="ci-vis-ipoteca">
+            <input type="checkbox" id="f-vis-ipoteca" onchange="refreshCI('vis-ipoteca')"> 🔒 Ipotecato / pendenze
+          </label>
+          <label class="check-item" id="ci-vis-planimetria">
+            <input type="checkbox" id="f-vis-planimetria" onchange="refreshCI('vis-planimetria')"> 📐 Planimetria conforme
+          </label>
+          <label class="check-item" id="ci-vis-abuso">
+            <input type="checkbox" id="f-vis-abuso" onchange="refreshCI('vis-abuso')"> 🚧 Abusi edilizi
+          </label>
+          <label class="check-item" id="ci-vis-ape">
+            <input type="checkbox" id="f-vis-ape" onchange="refreshCI('vis-ape')"> 📄 APE aggiornato
+          </label>
+          <label class="check-item" id="ci-vis-unico">
+            <input type="checkbox" id="f-vis-unico" onchange="refreshCI('vis-unico')"> 👤 Unico proprietario
+          </label>
+        </div>
+        <div class="vq-list">
+          <input type="text" id="f-vis-abuso-note" class="vq-note" placeholder="🚧 Abusi edilizi: dettagli / sanati?">
+          <input type="text" id="f-vis-perche" class="vq-note" placeholder="❓ Perché vende? Da quanto è sul mercato?">
+        </div>
+
+        <div class="sec">💰 Prezzo e trattativa</div>
+        <div class="checks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.35rem;">
+          <label class="check-item" id="ci-vis-trattabile">
+            <input type="checkbox" id="f-vis-trattabile" onchange="refreshCI('vis-trattabile')"> 💬 Prezzo trattabile
+          </label>
+          <label class="check-item" id="ci-vis-offerte">
+            <input type="checkbox" id="f-vis-offerte" onchange="refreshCI('vis-offerte')"> 📨 Altre offerte arrivate
+          </label>
+          <label class="check-item" id="ci-vis-spese-ok">
+            <input type="checkbox" id="f-vis-spese-ok" onchange="refreshCI('vis-spese-ok')"> ✅ Spese cond. in regola
+          </label>
+        </div>
+        <div class="vq-list">
+          <input type="text" id="f-vis-rogito" class="vq-note" placeholder="📅 Tempistica rogito attesa dal venditore">
+          <input type="text" id="f-vis-utenze" class="vq-note" placeholder="💡 Utenze: intestate a chi? Morosità?">
+        </div>
+
+        <div class="sec">🌞 Vita quotidiana</div>
+        <div class="fg" style="margin-bottom:.55rem;">
+          <label style="font-size:.75rem;color:var(--tm);font-weight:500;">🧭 Esposizione principale</label>
+          <div class="checks-grid" style="grid-template-columns:repeat(4,1fr);margin-top:.3rem;">
+            <label class="check-item" id="ci-vis-nord">
+              <input type="checkbox" id="f-vis-nord" onchange="refreshCI('vis-nord')"> N
+            </label>
+            <label class="check-item" id="ci-vis-sud">
+              <input type="checkbox" id="f-vis-sud" onchange="refreshCI('vis-sud')"> S
+            </label>
+            <label class="check-item" id="ci-vis-est">
+              <input type="checkbox" id="f-vis-est" onchange="refreshCI('vis-est')"> E
+            </label>
+            <label class="check-item" id="ci-vis-ovest">
+              <input type="checkbox" id="f-vis-ovest" onchange="refreshCI('vis-ovest')"> O
+            </label>
+          </div>
+        </div>
+        <div class="vq-list">
+          <input type="text" id="f-vis-luce" class="vq-note" placeholder="☀️ A che ora entra più luce?">
+          <div class="vq-item">
+            <label class="check-item" id="ci-vis-rumore">
+              <input type="checkbox" id="f-vis-rumore" onchange="refreshCI('vis-rumore')"> 🔊 Rumore percepito (strade / treni / locali)
+            </label>
+            <input type="text" id="f-vis-rumore-note" class="vq-note" placeholder="Da cosa? Di notte? Intensità?">
+          </div>
+          <label class="check-item" id="ci-vis-posto-auto">
+            <input type="checkbox" id="f-vis-posto-auto" onchange="refreshCI('vis-posto-auto')"> 🚗 Posto auto visitabile fisicamente
+          </label>
+          <input type="text" id="f-vis-internet" class="vq-note" placeholder="📶 Connessione internet nella zona">
+          <input type="text" id="f-vis-quartiere" class="vq-note" placeholder="📈 Quartiere: si è rivalutato o svalutato?">
+        </div>
+
+      </div><!-- /page-visita -->
+    </div><!-- /modal-body -->
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Annulla</button>
       <button class="btn btn-primary" onclick="saveHouse()">💾 Salva casa</button>
@@ -574,6 +743,8 @@ let editingId = null;
 let deletingId = null;
 let currentStars = 0;
 let toggleState = { visitata: false, contattata: false, venduta: false };
+let visRistrutturato = null;
+let visRiscTipo = null;
 let firestorePermError = false;
 
 const FEATS = ['ascensore','cantina','parcheggio','balcone','giardino','box','doppi-servizi','cucina-abitabile','luminosa'];
@@ -788,10 +959,10 @@ function openModal(id=null) {
   if(id) {
     const h = houses.find(x=>x.id===id);
     if(!h) return;
-    const fields = ['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola-piedi','scuola-bici','scuola-auto','stazione-piedi','stazione-bici','stazione-auto','super-piedi','super-bici','super-auto','palestra-piedi','palestra-bici','palestra-auto','pro','contro','note','data-visita'];
+    const fields = ['nome','link','prezzo','mq','agenzia','piano','spese','referente','contatto-info','scuola-piedi','scuola-bici','scuola-auto','stazione-piedi','stazione-bici','stazione-auto','super-piedi','super-bici','super-auto','palestra-piedi','palestra-bici','palestra-auto','pro','contro','note','data-visita'];
     const hMap = {
       'nome':h.nome,'link':h.link,'prezzo':h.prezzo||'','mq':h.mq||'',
-      'agenzia':h.agenzia,'piano':h.piano,'indirizzo':h.indirizzo,'anno':h.anno||'',
+      'agenzia':h.agenzia,'piano':h.piano,
       'spese':h.spese||'','referente':h.referente,'contatto-info':h.contattoInfo,
       'scuola-piedi':h.distScuolaPiedi||'','scuola-bici':h.distScuolaBici||'','scuola-auto':h.distScuolaAuto||'',
       'stazione-piedi':h.distStazionePiedi||'','stazione-bici':h.distStazioneBici||'','stazione-auto':h.distStazioneAuto||'',
@@ -806,19 +977,41 @@ function openModal(id=null) {
     setToggle('visitata',!!h.visitata,true);
     setToggle('contattata',!!h.contattata,true);
     setToggle('venduta',!!h.venduta,true);
+    // load visit fields
+    const VF=['vis-anno','vis-caldaia-anno','vis-umidita-note','vis-impianto-note','vis-risc-note','vis-lavori-note','vis-spese-str-note','vis-abuso-note','vis-perche','vis-rogito','vis-utenze','vis-luce','vis-rumore-note','vis-internet','vis-quartiere'];
+    const VM={'vis-anno':h.visAnno||'','vis-caldaia-anno':h.visCaldaiaAnno||'','vis-umidita-note':h.visUmiditaNote||'','vis-impianto-note':h.visImpiantoNote||'','vis-risc-note':h.visRiscNote||'','vis-lavori-note':h.visLavoriNote||'','vis-spese-str-note':h.visSpeseStrNote||'','vis-abuso-note':h.visAbusoNote||'','vis-perche':h.visPerche||'','vis-rogito':h.visRogito||'','vis-utenze':h.visUtenze||'','vis-luce':h.visLuce||'','vis-rumore-note':h.visRumoreNote||'','vis-internet':h.visInternet||'','vis-quartiere':h.visQuartiere||''};
+    VF.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=VM[f]||''; });
+    const VC=['vis-umidita','vis-serramenti','vis-impianto','vis-caldaia','vis-caldaia-inc','vis-condiz','vis-fibra','vis-lavori','vis-spese-str','vis-litigioso','vis-amm','vis-ipoteca','vis-planimetria','vis-abuso','vis-ape','vis-unico','vis-trattabile','vis-offerte','vis-spese-ok','vis-nord','vis-sud','vis-est','vis-ovest','vis-rumore','vis-posto-auto'];
+    const VCM={'vis-umidita':h.visUmidita,'vis-serramenti':h.visSerramenti,'vis-impianto':h.visImpianto,'vis-caldaia':h.visCaldaia,'vis-caldaia-inc':h.visCaldaiaInclusa,'vis-condiz':h.visCondiz,'vis-fibra':h.visFibra,'vis-lavori':h.visLavori,'vis-spese-str':h.visSpeseStr,'vis-litigioso':h.visLitigioso,'vis-amm':h.visAmm,'vis-ipoteca':h.visIpoteca,'vis-planimetria':h.visPlanimetria,'vis-abuso':h.visAbuso,'vis-ape':h.visApe,'vis-unico':h.visUnico,'vis-trattabile':h.visTrattabile,'vis-offerte':h.visOfferte,'vis-spese-ok':h.visSpeseOk,'vis-nord':h.visNord,'vis-sud':h.visSud,'vis-est':h.visEst,'vis-ovest':h.visOvest,'vis-rumore':h.visRumore,'vis-posto-auto':h.visPostoAuto};
+    VC.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=!!VCM[f]; refreshCI(f); }});
+    visRistrutturato = h.visRistrutturato !== undefined ? h.visRistrutturato : null;
+    document.getElementById('tb-rist-si').className='tgl '+(visRistrutturato===true?'sel-yes':'sel-no');
+    document.getElementById('tb-rist-no').className='tgl '+(visRistrutturato===false?'sel-yes':'sel-no');
+    visRiscTipo = h.visRiscTipo||null;
+    document.getElementById('tb-risc-aut').className='tgl '+(visRiscTipo==='autonomo'?'sel-yes':'sel-no');
+    document.getElementById('tb-risc-cent').className='tgl '+(visRiscTipo==='centralizzato'?'sel-yes':'sel-no');
   }
+  switchModalTab('casa');
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
 
 function resetForm() {
-  const fields=['nome','link','prezzo','mq','agenzia','piano','indirizzo','anno','spese','referente','contatto-info','scuola-piedi','scuola-bici','scuola-auto','stazione-piedi','stazione-bici','stazione-auto','super-piedi','super-bici','super-auto','palestra-piedi','palestra-bici','palestra-auto','pro','contro','note','data-visita'];
+  const fields=['nome','link','prezzo','mq','agenzia','piano','spese','referente','contatto-info','scuola-piedi','scuola-bici','scuola-auto','stazione-piedi','stazione-bici','stazione-auto','super-piedi','super-bici','super-auto','palestra-piedi','palestra-bici','palestra-auto','pro','contro','note','data-visita','vis-anno','vis-caldaia-anno','vis-umidita-note','vis-impianto-note','vis-risc-note','vis-lavori-note','vis-spese-str-note','vis-abuso-note','vis-perche','vis-rogito','vis-utenze','vis-luce','vis-rumore-note','vis-internet','vis-quartiere'];
   fields.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=''; });
   const cl=document.getElementById('f-classe'); if(cl) cl.value='';
   FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=false; refreshCI(f); }});
+  const VIS_CHECKS=['vis-umidita','vis-serramenti','vis-impianto','vis-caldaia','vis-caldaia-inc','vis-condiz','vis-fibra','vis-lavori','vis-spese-str','vis-litigioso','vis-amm','vis-ipoteca','vis-planimetria','vis-abuso','vis-ape','vis-unico','vis-trattabile','vis-offerte','vis-spese-ok','vis-nord','vis-sud','vis-est','vis-ovest','vis-rumore','vis-posto-auto'];
+  VIS_CHECKS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=false; refreshCI(f); }});
   currentStars=0; updateStarDisplay();
   toggleState={visitata:false,contattata:false,venduta:false};
   updateToggleDisplay('visitata'); updateToggleDisplay('contattata'); updateToggleDisplay('venduta');
+  visRistrutturato=null;
+  document.getElementById('tb-rist-si').className='tgl sel-no';
+  document.getElementById('tb-rist-no').className='tgl sel-no';
+  visRiscTipo=null;
+  document.getElementById('tb-risc-aut').className='tgl sel-no';
+  document.getElementById('tb-risc-cent').className='tgl sel-no';
 }
 
 function closeModal() {
@@ -838,6 +1031,25 @@ function refreshCI(feat) {
   const el=document.getElementById('f-'+feat);
   const ci=document.getElementById('ci-'+feat);
   if(ci) ci.classList.toggle('on', el&&el.checked);
+}
+
+function setVisToggle(field, val) {
+  if(field==='ristrutturato'){
+    visRistrutturato=val;
+    document.getElementById('tb-rist-si').className='tgl '+(val===true?'sel-yes':'sel-no');
+    document.getElementById('tb-rist-no').className='tgl '+(val===false?'sel-yes':'sel-no');
+  }
+}
+function setVisRisc(tipo) {
+  visRiscTipo = visRiscTipo===tipo ? null : tipo;
+  document.getElementById('tb-risc-aut').className='tgl '+(visRiscTipo==='autonomo'?'sel-yes':'sel-no');
+  document.getElementById('tb-risc-cent').className='tgl '+(visRiscTipo==='centralizzato'?'sel-yes':'sel-no');
+}
+function switchModalTab(tab) {
+  ['casa','visita'].forEach(t=>{
+    document.getElementById('page-'+t).classList.toggle('active', t===tab);
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
 }
 
 /* stars */
@@ -901,7 +1113,7 @@ function addToCalendar(idOrHouse) {
     text:     `🏠 Visita: ${h.nome || 'Casa'}`,
     dates:    `${dtStr}/${endDtStr}`,
     details:  desc,
-    location: h.indirizzo || ''
+    location: h.indirizzo || h.nome || ''
   });
   window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
   toast('📅 Google Calendar aperto!', 2500);
@@ -916,8 +1128,7 @@ async function saveHouse() {
   const h = {
     id: editingId || String(Date.now()),
     nome, link:v('link'), prezzo:n('prezzo'), mq:n('mq'),
-    agenzia:v('agenzia'), piano:v('piano'), indirizzo:v('indirizzo'),
-    anno:n('anno'), spese:n('spese'), referente:v('referente'),
+    agenzia:v('agenzia'), piano:v('piano'), spese:n('spese'), referente:v('referente'),
     contattoInfo:v('contatto-info'), classe:v('classe'),
     distScuolaPiedi:n('scuola-piedi'), distScuolaBici:n('scuola-bici'), distScuolaAuto:n('scuola-auto'),
     distStazionePiedi:n('stazione-piedi'), distStazioneBici:n('stazione-bici'), distStazioneAuto:n('stazione-auto'),
@@ -925,6 +1136,27 @@ async function saveHouse() {
     distPalestraPiedi:n('palestra-piedi'), distPalestraBici:n('palestra-bici'), distPalestraAuto:n('palestra-auto'),
     pro:v('pro'), contro:v('contro'), note:v('note'), dataVisita:v('data-visita'),
     stelline:currentStars, visitata:toggleState.visitata, contattata:toggleState.contattata, venduta:toggleState.venduta,
+    // visit questions
+    visAnno:n('vis-anno'), visRistrutturato, visRiscTipo,
+    visUmidita:!!(document.getElementById('f-vis-umidita')?.checked), visUmiditaNote:v('vis-umidita-note'),
+    visSerramenti:!!(document.getElementById('f-vis-serramenti')?.checked),
+    visImpianto:!!(document.getElementById('f-vis-impianto')?.checked), visImpiantoNote:v('vis-impianto-note'),
+    visRiscNote:v('vis-risc-note'),
+    visCaldaia:!!(document.getElementById('f-vis-caldaia')?.checked), visCaldaiaAnno:n('vis-caldaia-anno'), visCaldaiaInclusa:!!(document.getElementById('f-vis-caldaia-inc')?.checked),
+    visCondiz:!!(document.getElementById('f-vis-condiz')?.checked), visFibra:!!(document.getElementById('f-vis-fibra')?.checked),
+    visLavori:!!(document.getElementById('f-vis-lavori')?.checked), visLavoriNote:v('vis-lavori-note'),
+    visSpeseStr:!!(document.getElementById('f-vis-spese-str')?.checked), visSpeseStrNote:v('vis-spese-str-note'),
+    visLitigioso:!!(document.getElementById('f-vis-litigioso')?.checked), visAmm:!!(document.getElementById('f-vis-amm')?.checked),
+    visIpoteca:!!(document.getElementById('f-vis-ipoteca')?.checked), visPlanimetria:!!(document.getElementById('f-vis-planimetria')?.checked),
+    visAbuso:!!(document.getElementById('f-vis-abuso')?.checked), visAbusoNote:v('vis-abuso-note'),
+    visApe:!!(document.getElementById('f-vis-ape')?.checked), visUnico:!!(document.getElementById('f-vis-unico')?.checked),
+    visPerche:v('vis-perche'),
+    visTrattabile:!!(document.getElementById('f-vis-trattabile')?.checked), visOfferte:!!(document.getElementById('f-vis-offerte')?.checked),
+    visSpeseOk:!!(document.getElementById('f-vis-spese-ok')?.checked), visRogito:v('vis-rogito'), visUtenze:v('vis-utenze'),
+    visNord:!!(document.getElementById('f-vis-nord')?.checked), visSud:!!(document.getElementById('f-vis-sud')?.checked),
+    visEst:!!(document.getElementById('f-vis-est')?.checked), visOvest:!!(document.getElementById('f-vis-ovest')?.checked),
+    visLuce:v('vis-luce'), visRumore:!!(document.getElementById('f-vis-rumore')?.checked), visRumoreNote:v('vis-rumore-note'),
+    visPostoAuto:!!(document.getElementById('f-vis-posto-auto')?.checked), visInternet:v('vis-internet'), visQuartiere:v('vis-quartiere'),
   };
   FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); h[f]=el?el.checked:false; });
 
@@ -1071,6 +1303,9 @@ window.confirmDelete = confirmDelete;
 window.toggleCheck = toggleCheck;
 window.refreshCI = refreshCI;
 window.addToCalendar = addToCalendar;
+window.setVisToggle = setVisToggle;
+window.setVisRisc = setVisRisc;
+window.switchModalTab = switchModalTab;
 render();
 </script>
 </body>
