@@ -1130,13 +1130,16 @@ function addToCalendar(idOrHouse) {
   const endHH = (hh + 1) % 24;
   const dtStr    = `${dateStr}T${String(hh).padStart(2,'0')}${String(mm).padStart(2,'0')}00`;
   const endDtStr = `${dateStr}T${String(endHH).padStart(2,'0')}${String(mm).padStart(2,'0')}00`;
+  const location = h.nome || h.indirizzo || '';
+  const mapsUrl  = location ? `https://maps.google.com/?q=${encodeURIComponent(location)}` : '';
   const desc = [
     h.prezzo      ? `Prezzo: €${Number(h.prezzo).toLocaleString('it-IT')}` : '',
     h.mq          ? `${h.mq} m²`               : '',
     h.agenzia     ? `Agenzia: ${h.agenzia}`     : '',
     h.referente   ? `Referente: ${h.referente}` : '',
     h.contattoInfo? `Tel: ${h.contattoInfo}`    : '',
-    h.link        ? h.link                      : '',
+    mapsUrl       ? `📍 ${mapsUrl}`            : '',
+    h.link        ? `🔗 ${h.link}`             : '',
     h.note        ? `Note: ${h.note}`           : ''
   ].filter(Boolean).join('\n');
   const params = new URLSearchParams({
@@ -1144,7 +1147,7 @@ function addToCalendar(idOrHouse) {
     text:     `🏠 Visita: ${h.nome || 'Casa'}`,
     dates:    `${dtStr}/${endDtStr}`,
     details:  desc,
-    location: h.indirizzo || h.nome || ''
+    location: location
   });
   window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
   toast('📅 Google Calendar aperto!', 2500);
