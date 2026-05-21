@@ -1155,6 +1155,9 @@ async function saveHouse() {
   const v=id=>g(id)?g(id).value.trim():'';
   const n=id=>parseFloat(g(id)?g(id).value:0)||0;
 
+  // Capture previous date BEFORE building h, to detect changes
+  const prevDataVisita = editingId ? ((houses.find(x=>x.id===editingId)||{}).dataVisita||'') : '';
+
   const nome = v('nome') || 'Casa senza nome';
   const h = {
     id: editingId || String(Date.now()),
@@ -1197,7 +1200,7 @@ async function saveHouse() {
       await setDoc(doc(db, 'users', authUid, 'houses', String(h.id)), h);
       toast(editingId? '✅ Casa aggiornata!' : '🏠 Casa aggiunta!');
       closeModal();
-      if(!editingId && h.dataVisita) addToCalendar(h);
+      if(h.dataVisita && h.dataVisita !== prevDataVisita) addToCalendar(h);
       return;
     } catch(e){
       console.error('Firestore save error', e);
@@ -1211,7 +1214,7 @@ async function saveHouse() {
     toast('✅ Casa aggiornata (locale)');
   } else { houses.push(h); toast('🏠 Casa aggiunta (locale)'); }
   save(); render(); closeModal();
-  if(!editingId && h.dataVisita) addToCalendar(h);
+  if(h.dataVisita && h.dataVisita !== prevDataVisita) addToCalendar(h);
 }
 
 function editHouse(id){ openModal(id); }
