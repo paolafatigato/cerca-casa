@@ -160,7 +160,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);mi
 
 /* STARS INPUT */
 .star-input{display:flex;gap:5px;margin-bottom:.7rem;}
-.star-btn{font-size:1.5rem;cursor:pointer;background:none;border:none;color:var(--bd);transition:color .1s,transform .1s;padding:1px;line-height:1;}
+.star-btn{font-size:1.2rem;cursor:pointer;background:none;border:none;color:var(--bd);transition:color .1s,transform .1s;padding:1px;line-height:1;}
 .star-btn:hover,.star-btn.on{color:var(--gold);}
 .star-btn:hover{transform:scale(1.15);}
 
@@ -351,6 +351,11 @@ a.btn{display:inline-flex;}
         <button class="star-btn" data-v="3" onclick="setStar(3)">★</button>
         <button class="star-btn" data-v="4" onclick="setStar(4)">★</button>
         <button class="star-btn" data-v="5" onclick="setStar(5)">★</button>
+        <button class="star-btn" data-v="6" onclick="setStar(6)">★</button>
+        <button class="star-btn" data-v="7" onclick="setStar(7)">★</button>
+        <button class="star-btn" data-v="8" onclick="setStar(8)">★</button>
+        <button class="star-btn" data-v="9" onclick="setStar(9)">★</button>
+        <button class="star-btn" data-v="10" onclick="setStar(10)">★</button>
       </div>
 
       <div class="sec">🏢 Agenzia e contatti</div>
@@ -779,7 +784,7 @@ function fmtRatio(p,mq) {
 }
 
 function starsHTML(n) {
-  return Array.from({length:5},(_,i)=>`<span class="star ${i<n?'filled':''}">★</span>`).join('');
+  return Array.from({length:10},(_,i)=>`<span class="star ${i<n?'filled':''}">★</span>`).join('');
 }
 
 function renderCard(h, idx) {
@@ -821,7 +826,7 @@ function renderCard(h, idx) {
   const speseEl = h.spese ? `<span class="dist-item">💰 cond. <span class="dist-val">€${h.spese}/mese</span></span>` : '';
 
   return `
-  <div class="card${h.venduta?' venduta':''}" id="card-${h.id}" onclick="openModal('${h.id}')" style="cursor:pointer;">
+  <div class="card${h.venduta?' venduta':''}${h.visitata&&!h.venduta?' visitata':''}" id="card-${h.id}" onclick="openModal('${h.id}')" style="cursor:pointer;">
     <div class="card-header">
       <div class="card-num">${idx+1}</div>
       <div class="card-title-area">
@@ -904,7 +909,7 @@ function renderStats() {
   const mqs = houses.filter(h=>h.mq>0).map(h=>h.mq);
   const visitate = houses.filter(h=>h.visitata).length;
   const stelleTot = houses.filter(h=>h.stelline>0);
-  const avgStelle = stelleTot.length ? (stelleTot.reduce((s,h)=>s+h.stelline,0)/stelleTot.length).toFixed(1) : '—';
+  const avgStelle = stelleTot.length ? (stelleTot.reduce((s,h)=>s+h.stelline,0)/stelleTot.length).toFixed(1)+'/10' : '—';
   const minP = prezzi.length ? fmt(Math.min(...prezzi)) : '—';
   const maxP = prezzi.length ? fmt(Math.max(...prezzi)) : '—';
   const avgMq = mqs.length ? Math.round(mqs.reduce((s,m)=>s+m,0)/mqs.length) : '—';

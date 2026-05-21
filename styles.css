@@ -327,6 +327,14 @@ a.btn-ghost:not(.site-header a):hover {
   font-weight: 500;
   flex-shrink: 0;
 }
+.card.visitata {
+  border-color: var(--chartreuse) !important;
+  box-shadow: 0 0 0 1px rgba(202,255,29,.16), var(--sh);
+}
+.card.visitata:hover {
+  box-shadow: 0 0 0 1px rgba(202,255,29,.22), var(--sh-h);
+}
+
 /* "venduta" toggle button — active state (red) */
 .tgl.tgl-venduta-on {
   background: #fde8f1;
