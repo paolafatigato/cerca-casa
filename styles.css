@@ -254,6 +254,45 @@ body {
 }
 
 /* ══════════════════════════════════════════
+   APPOINTMENT DATE INPUT
+   ══════════════════════════════════════════ */
+.appt-input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: .7rem 1rem !important;
+  background: linear-gradient(135deg, #fdf5ff 0%, #fff9f1 100%) !important;
+  border: 2px solid rgba(144,25,255,.28) !important;
+  border-radius: var(--rs) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: .92rem !important;
+  color: var(--td) !important;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color .15s, box-shadow .15s;
+  box-shadow: 0 1px 6px rgba(144,25,255,.08);
+}
+.appt-input:focus {
+  border-color: var(--violet-ray) !important;
+  box-shadow: 0 0 0 3px rgba(144,25,255,.13) !important;
+  outline: none;
+  background: #fff !important;
+}
+.appt-input::-webkit-datetime-edit { padding: 0; color: var(--td); }
+.appt-input::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+.appt-input::-webkit-datetime-edit-text { color: var(--tl); }
+.appt-input::-webkit-calendar-picker-indicator {
+  filter: invert(18%) sepia(90%) saturate(4000%) hue-rotate(255deg) brightness(85%);
+  cursor: pointer;
+  opacity: .70;
+  padding: 2px;
+  border-radius: 4px;
+}
+.appt-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: rgba(144,25,255,.10);
+}
+
+/* ══════════════════════════════════════════
    LINK BUTTON
    ══════════════════════════════════════════ */
 a.btn-ghost:not(.site-header a) {

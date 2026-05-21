@@ -246,6 +246,7 @@ a.btn{display:inline-flex;}
     <button class="pill" onclick="setSort('mq')" id="pill-mq">📐 Metri quadri</button>
     <button class="pill" onclick="setSort('scuola')" id="pill-scuola">🏫 Vicino scuola</button>
     <button class="pill" onclick="setSort('stazione')" id="pill-stazione">🚂 Vicino stazione</button>
+    <button class="pill" onclick="setSort('appuntamento')" id="pill-appuntamento">📅 Appuntamento</button>
   </div>
   <span class="count-badge" id="count-badge">0 case</span>
 </div>
@@ -365,7 +366,7 @@ a.btn{display:inline-flex;}
       </div>
       <div class="form-row full">
         <div class="fg"><label>📅 Data e ora visita</label>
-          <input type="datetime-local" id="f-data-visita"></div>
+          <input type="datetime-local" id="f-data-visita" class="appt-input"></div>
       </div>
 
       <div class="sec">📏 Distanze (minuti)</div>
@@ -487,6 +488,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/calendar.events');
+provider.setCustomParameters({ prompt: 'consent', access_type: 'offline' });
 let authUid = null;
 let gcalToken = sessionStorage.getItem('gcal_token') || null;
 let unsubscribeFirestore = null;
@@ -510,7 +512,6 @@ function updateAuthButton(user){
 
 async function signInGoogle(){
   try{
-    // Try popup first — works on modern desktop and mobile Chrome/Safari
     const result = await signInWithPopup(auth, provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if(credential && credential.accessToken){
@@ -519,23 +520,28 @@ async function signInGoogle(){
     }
   } catch(e){
     if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
-      // Popup was blocked or dismissed — fall back to redirect (works on all mobile browsers)
       try{ await signInWithRedirect(auth, provider); }
-      catch(e2){ console.error('Sign-in redirect failed', e2); alert('Accesso fallito: '+e2.message); }
+      catch(e2){ console.error('Sign-in redirect failed', e2); }
     } else {
-      console.error('Google sign-in failed', e); alert('Accesso fallito: '+e.message);
+      console.error('Google sign-in failed', e);
     }
   }
 }
 
 // Handle redirect result (in case the provider returns data after redirect)
 getRedirectResult(auth).then(result=>{
-  if(result && result.user){ console.log('Redirect sign-in success', result.user.uid); }
+  if(result && result.user){
+    console.log('Redirect sign-in success', result.user.uid);
+    try{
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if(credential && credential.accessToken){
+        gcalToken = credential.accessToken;
+        sessionStorage.setItem('gcal_token', gcalToken);
+      }
+    } catch(e){ console.warn('No credential in redirect result', e); }
+  }
 }).catch(e=>{
-  if(e && e.code==='auth/popup-blocked'){
-    // unlikely here, but keep message
-    console.warn('Popup was blocked; using redirect flow instead');
-  } else if(e){ console.warn('getRedirectResult error', e); }
+  console.warn('getRedirectResult error', e);
 });
 
 async function signOutUser(){
@@ -696,8 +702,14 @@ function getSorted() {
     case 'stelline': return arr.sort((a,b)=>(b.stelline||0)-(a.stelline||0));
     case 'mq':       return arr.sort((a,b)=>(b.mq||0)-(a.mq||0));
     case 'scuola':   return arr.sort((a,b)=>(a.distScuolaPiedi||9999)-(b.distScuolaPiedi||9999));
-    case 'stazione': return arr.sort((a,b)=>(a.distStazionePiedi||9999)-(b.distStazionePiedi||9999));
-    default:         return arr.sort((a,b)=>Number(b.id||0)-Number(a.id||0));
+    case 'stazione':     return arr.sort((a,b)=>(a.distStazionePiedi||9999)-(b.distStazionePiedi||9999));
+    case 'appuntamento': return arr.sort((a,b)=>{
+      if(!a.dataVisita && !b.dataVisita) return 0;
+      if(!a.dataVisita) return 1;
+      if(!b.dataVisita) return -1;
+      return new Date(a.dataVisita) - new Date(b.dataVisita);
+    });
+    default:             return arr.sort((a,b)=>Number(b.id||0)-Number(a.id||0));
   }
 }
 
@@ -848,56 +860,35 @@ function fmtDate(dt) {
   } catch(e) { return dt; }
 }
 
-async function addToCalendar(idOrHouse) {
+function addToCalendar(idOrHouse) {
   const h = (typeof idOrHouse === 'object') ? idOrHouse : houses.find(x => x.id === idOrHouse);
   if(!h || !h.dataVisita){ toast('📅 Nessuna data di visita impostata'); return; }
-  // Verifica che sia un datetime-local valido (non testo libero)
-  const startDate = new Date(h.dataVisita);
-  if(isNaN(startDate.getTime())){
-    toast('📅 Apri la casa, imposta la data con il selettore e salva di nuovo', 3500);
-    return;
-  }
-  if(!gcalToken){
-    toast('🔑 Riaccedi con Google per usare il calendario', 3000);
-    return;
-  }
-  const startStr = h.dataVisita;                                         // "2026-05-25T15:00"
-  const endStr   = new Date(startDate.getTime() + 60*60*1000)
-                     .toISOString().slice(0,16);                          // +1 ora
-  const event = {
-    summary:  h.nome || 'Visita casa',
-    location: h.indirizzo || '',
-    description: [
-      h.prezzo      ? `💰 Prezzo: €${Number(h.prezzo).toLocaleString('it-IT')}` : '',
-      h.mq          ? `📐 ${h.mq} m²`          : '',
-      h.agenzia     ? `🏢 ${h.agenzia}`         : '',
-      h.referente   ? `👤 ${h.referente}`        : '',
-      h.contattoInfo? `📞 ${h.contattoInfo}`     : '',
-      h.link        ? `🔗 ${h.link}`            : '',
-      h.note        ? `📝 ${h.note}`            : ''
-    ].filter(Boolean).join('\n'),
-    start: { dateTime: startStr + ':00', timeZone: 'Europe/Rome' },
-    end:   { dateTime: endStr   + ':00', timeZone: 'Europe/Rome' }
-  };
-  try {
-    const resp = await fetch(
-      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
-      { method:'POST', headers:{ 'Authorization':'Bearer '+gcalToken, 'Content-Type':'application/json' },
-        body: JSON.stringify(event) }
-    );
-    const data = await resp.json();
-    if(!resp.ok) throw new Error(data.error?.message || String(resp.status));
-    toast('📅 Evento aggiunto al Google Calendar!', 3000);
-  } catch(e) {
-    console.error('Calendar API error', e);
-    const msg = String(e.message || e);
-    if(msg.includes('401') || msg.includes('403') || msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('invalid')){
-      gcalToken = null; sessionStorage.removeItem('gcal_token');
-      toast('🔑 Token scaduto — esci e rientra con Google', 3500);
-    } else {
-      toast('Errore Calendar: ' + msg.slice(0,70), 3500);
-    }
-  }
+  const parts = h.dataVisita.split('T');
+  if(parts.length < 2 || !parts[0]){ toast('📅 Imposta la data con il selettore e salva di nuovo', 3500); return; }
+  const dateStr = parts[0].replace(/-/g,''); // '20260525'
+  const tp = (parts[1]||'00:00').split(':').map(Number);
+  const hh = tp[0]||0, mm = tp[1]||0;
+  const endHH = (hh + 1) % 24;
+  const dtStr    = `${dateStr}T${String(hh).padStart(2,'0')}${String(mm).padStart(2,'0')}00`;
+  const endDtStr = `${dateStr}T${String(endHH).padStart(2,'0')}${String(mm).padStart(2,'0')}00`;
+  const desc = [
+    h.prezzo      ? `Prezzo: €${Number(h.prezzo).toLocaleString('it-IT')}` : '',
+    h.mq          ? `${h.mq} m²`               : '',
+    h.agenzia     ? `Agenzia: ${h.agenzia}`     : '',
+    h.referente   ? `Referente: ${h.referente}` : '',
+    h.contattoInfo? `Tel: ${h.contattoInfo}`    : '',
+    h.link        ? h.link                      : '',
+    h.note        ? `Note: ${h.note}`           : ''
+  ].filter(Boolean).join('\n');
+  const params = new URLSearchParams({
+    action:   'TEMPLATE',
+    text:     `🏠 Visita: ${h.nome || 'Casa'}`,
+    dates:    `${dtStr}/${endDtStr}`,
+    details:  desc,
+    location: h.indirizzo || ''
+  });
+  window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
+  toast('📅 Google Calendar aperto!', 2500);
 }
 
 async function saveHouse() {
@@ -1047,6 +1038,7 @@ window.deleteHouse = deleteHouse;
 window.cancelDelete = cancelDelete;
 window.confirmDelete = confirmDelete;
 window.toggleCheck = toggleCheck;
+window.refreshCI = refreshCI;
 window.addToCalendar = addToCalendar;
 render();
 </script>
