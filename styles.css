@@ -303,3 +303,34 @@ a.btn-ghost:not(.site-header a):hover {
   background: #ede0ff;
   color: #6a00d0;
 }
+
+/* ══════════════════════════════════════════
+   VENDUTA (SOLD) CARDS
+   ══════════════════════════════════════════ */
+.card.venduta {
+  opacity: .52;
+  filter: grayscale(1);
+  border-color: rgba(0,0,0,.10) !important;
+  box-shadow: none !important;
+}
+.card.venduta:hover {
+  opacity: .68;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.badge-venduta {
+  background: #e8e8e8;
+  color: #777;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+/* "venduta" toggle button — active state (red) */
+.tgl.tgl-venduta-on {
+  background: #fde8f1;
+  color: #c0004a;
+  border-color: rgba(240,45,116,.40);
+  font-weight: 600;
+}

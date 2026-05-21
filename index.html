@@ -364,6 +364,14 @@ a.btn{display:inline-flex;}
             <button class="tgl" id="tb-vis-no" onclick="setToggle('visitata',false)">👁️ Non ancora</button>
           </div></div>
       </div>
+      <div class="form-row">
+        <div class="fg"><label>Casa venduta / non disponibile?</label>
+          <div class="toggle-pair">
+            <button class="tgl sel-no" id="tb-vend-si" onclick="setToggle('venduta',true)">🔴 Sì, venduta</button>
+            <button class="tgl" id="tb-vend-no" onclick="setToggle('venduta',false)">🟢 Disponibile</button>
+          </div></div>
+        <div class="fg"></div>
+      </div>
       <div class="form-row full">
         <div class="fg"><label>📅 Data e ora visita</label>
           <input type="datetime-local" id="f-data-visita" class="appt-input"></div>
@@ -565,7 +573,7 @@ let currentSort = 'data';
 let editingId = null;
 let deletingId = null;
 let currentStars = 0;
-let toggleState = { visitata: false, contattata: false };
+let toggleState = { visitata: false, contattata: false, venduta: false };
 let firestorePermError = false;
 
 const FEATS = ['ascensore','cantina','parcheggio','balcone','giardino','box','doppi-servizi','cucina-abitabile','luminosa'];
@@ -642,14 +650,14 @@ function renderCard(h, idx) {
   const speseEl = h.spese ? `<span class="dist-item">💰 cond. <span class="dist-val">€${h.spese}/mese</span></span>` : '';
 
   return `
-  <div class="card" id="card-${h.id}" onclick="openModal('${h.id}')" style="cursor:pointer;">
+  <div class="card${h.venduta?' venduta':''}" id="card-${h.id}" onclick="openModal('${h.id}')" style="cursor:pointer;">
     <div class="card-header">
       <div class="card-num">${idx+1}</div>
       <div class="card-title-area">
         <div class="card-nome" title="${h.nome||''}">${h.nome||'Casa senza nome'}</div>
         <div class="stars">${starsHTML(h.stelline||0)}</div>
       </div>
-      <span class="badge badge-vis ${h.visitata?'yes':'no'}">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</span>
+      ${h.venduta?`<span class="badge badge-venduta">🔴 Venduta</span>`:`<span class="badge badge-vis ${h.visitata?'yes':'no'}">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</span>`}
     </div>
 
     <div class="price-row">
@@ -690,6 +698,7 @@ function renderCard(h, idx) {
       <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editHouse('${h.id}')">✏️ Modifica</button>
       ${h.dataVisita?`<button class="btn btn-ghost btn-sm" title="Aggiungi al Google Calendar" onclick="event.stopPropagation(); addToCalendar('${h.id}')">📅 Cal.</button>`:''}
       <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="event.stopPropagation(); quickVisit('${h.id}')">${h.visitata?'↩️ Non visitata':'✅ Segna visitata'}</button>
+      <button class="btn btn-xs ${h.venduta?'btn-ghost':'btn-ghost'}" style="${h.venduta?'color:var(--green);border-color:var(--green);':''}" onclick="event.stopPropagation(); quickVenduta('${h.id}')">${h.venduta?'🟢 Disponibile':'🔴 Venduta'}</button>
       <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteHouse('${h.id}')">🗑️</button>
     </div>
   </div>`;
@@ -697,20 +706,23 @@ function renderCard(h, idx) {
 
 function getSorted() {
   const arr = [...houses];
+  let sorted;
   switch(currentSort) {
-    case 'prezzo':   return arr.sort((a,b)=>(a.prezzo||Infinity)-(b.prezzo||Infinity));
-    case 'stelline': return arr.sort((a,b)=>(b.stelline||0)-(a.stelline||0));
-    case 'mq':       return arr.sort((a,b)=>(b.mq||0)-(a.mq||0));
-    case 'scuola':   return arr.sort((a,b)=>(a.distScuolaPiedi||9999)-(b.distScuolaPiedi||9999));
-    case 'stazione':     return arr.sort((a,b)=>(a.distStazionePiedi||9999)-(b.distStazionePiedi||9999));
-    case 'appuntamento': return arr.sort((a,b)=>{
+    case 'prezzo':   sorted = arr.sort((a,b)=>(a.prezzo||Infinity)-(b.prezzo||Infinity)); break;
+    case 'stelline': sorted = arr.sort((a,b)=>(b.stelline||0)-(a.stelline||0)); break;
+    case 'mq':       sorted = arr.sort((a,b)=>(b.mq||0)-(a.mq||0)); break;
+    case 'scuola':   sorted = arr.sort((a,b)=>(a.distScuolaPiedi||9999)-(b.distScuolaPiedi||9999)); break;
+    case 'stazione':     sorted = arr.sort((a,b)=>(a.distStazionePiedi||9999)-(b.distStazionePiedi||9999)); break;
+    case 'appuntamento': sorted = arr.sort((a,b)=>{
       if(!a.dataVisita && !b.dataVisita) return 0;
       if(!a.dataVisita) return 1;
       if(!b.dataVisita) return -1;
       return new Date(a.dataVisita) - new Date(b.dataVisita);
-    });
-    default:             return arr.sort((a,b)=>Number(b.id||0)-Number(a.id||0));
+    }); break;
+    default:             sorted = arr.sort((a,b)=>Number(b.id||0)-Number(a.id||0));
   }
+  // vendute always at the bottom
+  return sorted.sort((a,b)=>(a.venduta?1:0)-(b.venduta?1:0));
 }
 
 function renderStats() {
@@ -793,6 +805,7 @@ function openModal(id=null) {
     setStar(h.stelline||0);
     setToggle('visitata',!!h.visitata,true);
     setToggle('contattata',!!h.contattata,true);
+    setToggle('venduta',!!h.venduta,true);
   }
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -804,8 +817,8 @@ function resetForm() {
   const cl=document.getElementById('f-classe'); if(cl) cl.value='';
   FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=false; refreshCI(f); }});
   currentStars=0; updateStarDisplay();
-  toggleState={visitata:false,contattata:false};
-  updateToggleDisplay('visitata'); updateToggleDisplay('contattata');
+  toggleState={visitata:false,contattata:false,venduta:false};
+  updateToggleDisplay('visitata'); updateToggleDisplay('contattata'); updateToggleDisplay('venduta');
 }
 
 function closeModal() {
@@ -845,6 +858,9 @@ function updateToggleDisplay(field){
   if(field==='visitata'){
     document.getElementById('tb-vis-si').className='tgl '+(val?'sel-yes':'sel-no');
     document.getElementById('tb-vis-no').className='tgl '+(!val?'sel-yes':'sel-no');
+  } else if(field==='venduta'){
+    document.getElementById('tb-vend-si').className='tgl '+(val?'tgl-venduta-on':'sel-no');
+    document.getElementById('tb-vend-no').className='tgl '+(val?'sel-no':'sel-yes');
   } else {
     document.getElementById('tb-con-si').className='tgl '+(val?'sel-yes':'sel-no');
     document.getElementById('tb-con-no').className='tgl '+(!val?'sel-yes':'sel-no');
@@ -908,7 +924,7 @@ async function saveHouse() {
     distSuperPiedi:n('super-piedi'), distSuperBici:n('super-bici'), distSuperAuto:n('super-auto'),
     distPalestraPiedi:n('palestra-piedi'), distPalestraBici:n('palestra-bici'), distPalestraAuto:n('palestra-auto'),
     pro:v('pro'), contro:v('contro'), note:v('note'), dataVisita:v('data-visita'),
-    stelline:currentStars, visitata:toggleState.visitata, contattata:toggleState.contattata,
+    stelline:currentStars, visitata:toggleState.visitata, contattata:toggleState.contattata, venduta:toggleState.venduta,
   };
   FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); h[f]=el?el.checked:false; });
 
@@ -935,6 +951,20 @@ async function saveHouse() {
 }
 
 function editHouse(id){ openModal(id); }
+
+async function quickVenduta(id){
+  const h=houses.find(x=>x.id===id);
+  if(!h) return;
+  const updated = {...h, venduta:!h.venduta};
+  if(authUid){
+    try{
+      await setDoc(doc(db,'users',authUid,'houses',String(id)), updated);
+      toast(updated.venduta?'🔴 Segnata come venduta':'🟢 Segnata come disponibile');
+      return;
+    } catch(e){ console.error('Firestore update error', e); }
+  }
+  h.venduta = !h.venduta; save(); render(); toast(h.venduta?'🔴 Segnata come venduta':'🟢 Segnata come disponibile');
+}
 
 async function quickVisit(id){
   const h=houses.find(x=>x.id===id);
@@ -1034,6 +1064,7 @@ window.setToggle = setToggle;
 window.saveHouse = saveHouse;
 window.editHouse = editHouse;
 window.quickVisit = quickVisit;
+window.quickVenduta = quickVenduta;
 window.deleteHouse = deleteHouse;
 window.cancelDelete = cancelDelete;
 window.confirmDelete = confirmDelete;
