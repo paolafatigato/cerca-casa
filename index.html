@@ -481,37 +481,51 @@ a.btn{display:inline-flex;}
           </div>
         </div>
 
-        <div class="checks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.35rem;">
-          <label class="check-item" id="ci-vis-umidita">
+        <label class="check-item" id="ci-vis-serramenti" style="margin-bottom:.45rem;">
+          <input type="checkbox" id="f-vis-serramenti" onchange="refreshCI('vis-serramenti')"> 🪟 Serramenti con isolamento termico
+        </label>
+
+        <div class="vq-inline-row">
+          <label class="check-item vq-inline-check" id="ci-vis-umidita">
             <input type="checkbox" id="f-vis-umidita" onchange="refreshCI('vis-umidita')"> 💧 Umidità / muffe
           </label>
-          <label class="check-item" id="ci-vis-serramenti">
-            <input type="checkbox" id="f-vis-serramenti" onchange="refreshCI('vis-serramenti')"> 🪟 Serramenti termici
-          </label>
-          <label class="check-item" id="ci-vis-impianto">
-            <input type="checkbox" id="f-vis-impianto" onchange="refreshCI('vis-impianto')"> ⚡ Impianto el. a norma
-          </label>
-          <label class="check-item" id="ci-vis-caldaia">
-            <input type="checkbox" id="f-vis-caldaia" onchange="refreshCI('vis-caldaia')"> 🔧 Caldaia presente
-          </label>
-          <label class="check-item" id="ci-vis-condiz">
-            <input type="checkbox" id="f-vis-condiz" onchange="refreshCI('vis-condiz')"> ❄️ Pred. condizionatore
-          </label>
-          <label class="check-item" id="ci-vis-fibra">
-            <input type="checkbox" id="f-vis-fibra" onchange="refreshCI('vis-fibra')"> 🌐 Pred. fibra ottica
-          </label>
+          <input type="text" id="f-vis-umidita-note" class="vq-note vq-inline-note" placeholder="dove?">
         </div>
 
-        <div class="vq-list">
-          <input type="text" id="f-vis-umidita-note" class="vq-note" placeholder="💧 Dove si vede umidità / muffa?">
-          <input type="text" id="f-vis-impianto-note" class="vq-note" placeholder="⚡ Anno impianto elettrico / ha certificazione?">
-          <div class="vq-inline">
-            <span style="font-size:.78rem;color:var(--tm);font-weight:500;">🔧 Caldaia:</span>
-            <input type="number" id="f-vis-caldaia-anno" class="compact-input" placeholder="anno" min="1980" max="2030" style="width:5rem;">
-            <label class="check-item" id="ci-vis-caldaia-inc" style="flex:1;font-size:.78rem;padding:.35rem .6rem;">
-              <input type="checkbox" id="f-vis-caldaia-inc" onchange="refreshCI('vis-caldaia-inc')"> inclusa nella vendita
-            </label>
-          </div>
+        <div class="vq-inline-row">
+          <label class="check-item vq-inline-check" id="ci-vis-impianto">
+            <input type="checkbox" id="f-vis-impianto" onchange="refreshCI('vis-impianto')"> ⚡ Impianto el. a norma
+          </label>
+          <input type="text" id="f-vis-impianto-note" class="vq-note vq-inline-note" placeholder="anno / certificazione">
+        </div>
+
+        <div class="vq-inline-row">
+          <label class="check-item vq-inline-check" id="ci-vis-caldaia">
+            <input type="checkbox" id="f-vis-caldaia" onchange="refreshCI('vis-caldaia')"> 🔧 Caldaia
+          </label>
+          <input type="text" id="f-vis-caldaia-anno" class="vq-note vq-inline-note" placeholder="anno caldaia">
+        </div>
+
+        <div class="vq-multi-row">
+          <span class="vq-row-label">❄️ Condizionatore</span>
+          <label class="check-item vq-mini-check" id="ci-vis-condiz-pres">
+            <input type="checkbox" id="f-vis-condiz-pres" onchange="refreshCI('vis-condiz-pres')"> Presente
+          </label>
+          <label class="check-item vq-mini-check" id="ci-vis-condiz-pred">
+            <input type="checkbox" id="f-vis-condiz-pred" onchange="refreshCI('vis-condiz-pred')"> Predisposizione
+          </label>
+          <input type="text" id="f-vis-condiz-note" class="vq-note vq-inline-note" placeholder="commenti">
+        </div>
+
+        <div class="vq-multi-row">
+          <span class="vq-row-label">🌐 Fibra ottica</span>
+          <label class="check-item vq-mini-check" id="ci-vis-fibra-pres">
+            <input type="checkbox" id="f-vis-fibra-pres" onchange="refreshCI('vis-fibra-pres')"> Presente
+          </label>
+          <label class="check-item vq-mini-check" id="ci-vis-fibra-pred">
+            <input type="checkbox" id="f-vis-fibra-pred" onchange="refreshCI('vis-fibra-pred')"> Predisposizione
+          </label>
+          <input type="text" id="f-vis-fibra-note" class="vq-note vq-inline-note" placeholder="commenti">
         </div>
 
         <div class="fg" style="margin-bottom:.75rem;">
@@ -526,20 +540,32 @@ a.btn{display:inline-flex;}
         <div class="sec">🏢 Condominio</div>
         <div class="vq-list">
           <div class="vq-item">
-            <label class="check-item" id="ci-vis-lavori">
-              <input type="checkbox" id="f-vis-lavori" onchange="refreshCI('vis-lavori')"> 🔨 Lavori condominiali deliberati o in programma
-            </label>
+            <div class="vq-multi-row" style="margin-bottom:.25rem;">
+              <span class="vq-row-label">🔨 Lavori condominiali</span>
+              <label class="check-item vq-mini-check" id="ci-vis-lavori">
+                <input type="checkbox" id="f-vis-lavori" onchange="refreshCI('vis-lavori')"> Sì
+              </label>
+              <label class="check-item vq-mini-check" id="ci-vis-lavori-no">
+                <input type="checkbox" id="f-vis-lavori-no" onchange="refreshCI('vis-lavori-no')"> No
+              </label>
+            </div>
             <input type="text" id="f-vis-lavori-note" class="vq-note" placeholder="Quali? Importo stimato?">
           </div>
           <div class="vq-item">
-            <label class="check-item" id="ci-vis-spese-str">
-              <input type="checkbox" id="f-vis-spese-str" onchange="refreshCI('vis-spese-str')"> 💸 Spese straordinarie in sospeso
-            </label>
+            <div class="vq-multi-row" style="margin-bottom:.25rem;">
+              <span class="vq-row-label">💸 Spese straordinarie</span>
+              <label class="check-item vq-mini-check" id="ci-vis-spese-str">
+                <input type="checkbox" id="f-vis-spese-str" onchange="refreshCI('vis-spese-str')"> Sì
+              </label>
+              <label class="check-item vq-mini-check" id="ci-vis-spese-str-no">
+                <input type="checkbox" id="f-vis-spese-str-no" onchange="refreshCI('vis-spese-str-no')"> No
+              </label>
+            </div>
             <input type="text" id="f-vis-spese-str-note" class="vq-note" placeholder="Importo / dettagli">
           </div>
           <div class="checks-grid" style="grid-template-columns:1fr 1fr;">
-            <label class="check-item" id="ci-vis-litigioso">
-              <input type="checkbox" id="f-vis-litigioso" onchange="refreshCI('vis-litigioso')"> ⚠️ Condominio litigioso
+            <label class="check-item" id="ci-vis-amichevoli">
+              <input type="checkbox" id="f-vis-amichevoli" onchange="refreshCI('vis-amichevoli')"> 🤝 Condomini amichevoli
             </label>
             <label class="check-item" id="ci-vis-amm">
               <input type="checkbox" id="f-vis-amm" onchange="refreshCI('vis-amm')"> 👤 Ha amministratore
@@ -983,11 +1009,11 @@ function openModal(id=null) {
     setToggle('contattata',!!h.contattata,true);
     setToggle('venduta',!!h.venduta,true);
     // load visit fields
-    const VF=['vis-anno','vis-caldaia-anno','vis-umidita-note','vis-impianto-note','vis-risc-note','vis-lavori-note','vis-spese-str-note','vis-abuso-note','vis-perche','vis-rogito','vis-utenze','vis-luce','vis-rumore-note','vis-internet','vis-quartiere'];
-    const VM={'vis-anno':h.visAnno||'','vis-caldaia-anno':h.visCaldaiaAnno||'','vis-umidita-note':h.visUmiditaNote||'','vis-impianto-note':h.visImpiantoNote||'','vis-risc-note':h.visRiscNote||'','vis-lavori-note':h.visLavoriNote||'','vis-spese-str-note':h.visSpeseStrNote||'','vis-abuso-note':h.visAbusoNote||'','vis-perche':h.visPerche||'','vis-rogito':h.visRogito||'','vis-utenze':h.visUtenze||'','vis-luce':h.visLuce||'','vis-rumore-note':h.visRumoreNote||'','vis-internet':h.visInternet||'','vis-quartiere':h.visQuartiere||''};
+    const VF=['vis-anno','vis-caldaia-anno','vis-umidita-note','vis-impianto-note','vis-risc-note','vis-condiz-note','vis-fibra-note','vis-lavori-note','vis-spese-str-note','vis-abuso-note','vis-perche','vis-rogito','vis-utenze','vis-luce','vis-rumore-note','vis-internet','vis-quartiere'];
+    const VM={'vis-anno':h.visAnno||'','vis-caldaia-anno':h.visCaldaiaAnno||'','vis-umidita-note':h.visUmiditaNote||'','vis-impianto-note':h.visImpiantoNote||'','vis-risc-note':h.visRiscNote||'','vis-condiz-note':h.visCondizNote||'','vis-fibra-note':h.visFibraNote||'','vis-lavori-note':h.visLavoriNote||'','vis-spese-str-note':h.visSpeseStrNote||'','vis-abuso-note':h.visAbusoNote||'','vis-perche':h.visPerche||'','vis-rogito':h.visRogito||'','vis-utenze':h.visUtenze||'','vis-luce':h.visLuce||'','vis-rumore-note':h.visRumoreNote||'','vis-internet':h.visInternet||'','vis-quartiere':h.visQuartiere||''};
     VF.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=VM[f]||''; });
-    const VC=['vis-umidita','vis-serramenti','vis-impianto','vis-caldaia','vis-caldaia-inc','vis-condiz','vis-fibra','vis-lavori','vis-spese-str','vis-litigioso','vis-amm','vis-ipoteca','vis-planimetria','vis-abuso','vis-ape','vis-unico','vis-trattabile','vis-offerte','vis-spese-ok','vis-nord','vis-sud','vis-est','vis-ovest','vis-rumore','vis-posto-auto'];
-    const VCM={'vis-umidita':h.visUmidita,'vis-serramenti':h.visSerramenti,'vis-impianto':h.visImpianto,'vis-caldaia':h.visCaldaia,'vis-caldaia-inc':h.visCaldaiaInclusa,'vis-condiz':h.visCondiz,'vis-fibra':h.visFibra,'vis-lavori':h.visLavori,'vis-spese-str':h.visSpeseStr,'vis-litigioso':h.visLitigioso,'vis-amm':h.visAmm,'vis-ipoteca':h.visIpoteca,'vis-planimetria':h.visPlanimetria,'vis-abuso':h.visAbuso,'vis-ape':h.visApe,'vis-unico':h.visUnico,'vis-trattabile':h.visTrattabile,'vis-offerte':h.visOfferte,'vis-spese-ok':h.visSpeseOk,'vis-nord':h.visNord,'vis-sud':h.visSud,'vis-est':h.visEst,'vis-ovest':h.visOvest,'vis-rumore':h.visRumore,'vis-posto-auto':h.visPostoAuto};
+    const VC=['vis-umidita','vis-serramenti','vis-impianto','vis-caldaia','vis-condiz-pres','vis-condiz-pred','vis-fibra-pres','vis-fibra-pred','vis-lavori','vis-lavori-no','vis-spese-str','vis-spese-str-no','vis-amichevoli','vis-amm','vis-ipoteca','vis-planimetria','vis-abuso','vis-ape','vis-unico','vis-trattabile','vis-offerte','vis-spese-ok','vis-nord','vis-sud','vis-est','vis-ovest','vis-rumore','vis-posto-auto'];
+    const VCM={'vis-umidita':h.visUmidita,'vis-serramenti':h.visSerramenti,'vis-impianto':h.visImpianto,'vis-caldaia':h.visCaldaia,'vis-condiz-pres':h.visCondizPres,'vis-condiz-pred':h.visCondizPred,'vis-fibra-pres':h.visFibraPres,'vis-fibra-pred':h.visFibraPred,'vis-lavori':h.visLavori,'vis-lavori-no':h.visLavoriNo,'vis-spese-str':h.visSpeseStr,'vis-spese-str-no':h.visSpeseStrNo,'vis-amichevoli':h.visAmichevoli,'vis-amm':h.visAmm,'vis-ipoteca':h.visIpoteca,'vis-planimetria':h.visPlanimetria,'vis-abuso':h.visAbuso,'vis-ape':h.visApe,'vis-unico':h.visUnico,'vis-trattabile':h.visTrattabile,'vis-offerte':h.visOfferte,'vis-spese-ok':h.visSpeseOk,'vis-nord':h.visNord,'vis-sud':h.visSud,'vis-est':h.visEst,'vis-ovest':h.visOvest,'vis-rumore':h.visRumore,'vis-posto-auto':h.visPostoAuto};
     VC.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=!!VCM[f]; refreshCI(f); }});
     visRistrutturato = h.visRistrutturato !== undefined ? h.visRistrutturato : null;
     document.getElementById('tb-rist-si').className='tgl '+(visRistrutturato===true?'sel-yes':'sel-no');
@@ -1006,7 +1032,7 @@ function resetForm() {
   fields.forEach(f=>{ const el=document.getElementById('f-'+f); if(el) el.value=''; });
   const cl=document.getElementById('f-classe'); if(cl) cl.value='';
   FEATS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=false; refreshCI(f); }});
-  const VIS_CHECKS=['vis-umidita','vis-serramenti','vis-impianto','vis-caldaia','vis-caldaia-inc','vis-condiz','vis-fibra','vis-lavori','vis-spese-str','vis-litigioso','vis-amm','vis-ipoteca','vis-planimetria','vis-abuso','vis-ape','vis-unico','vis-trattabile','vis-offerte','vis-spese-ok','vis-nord','vis-sud','vis-est','vis-ovest','vis-rumore','vis-posto-auto'];
+  const VIS_CHECKS=['vis-umidita','vis-serramenti','vis-impianto','vis-caldaia','vis-condiz-pres','vis-condiz-pred','vis-fibra-pres','vis-fibra-pred','vis-lavori','vis-lavori-no','vis-spese-str','vis-spese-str-no','vis-amichevoli','vis-amm','vis-ipoteca','vis-planimetria','vis-abuso','vis-ape','vis-unico','vis-trattabile','vis-offerte','vis-spese-ok','vis-nord','vis-sud','vis-est','vis-ovest','vis-rumore','vis-posto-auto'];
   VIS_CHECKS.forEach(f=>{ const el=document.getElementById('f-'+f); if(el){ el.checked=false; refreshCI(f); }});
   currentStars=0; updateStarDisplay();
   toggleState={visitata:false,contattata:false,venduta:false};
@@ -1147,11 +1173,12 @@ async function saveHouse() {
     visSerramenti:!!(document.getElementById('f-vis-serramenti')?.checked),
     visImpianto:!!(document.getElementById('f-vis-impianto')?.checked), visImpiantoNote:v('vis-impianto-note'),
     visRiscNote:v('vis-risc-note'),
-    visCaldaia:!!(document.getElementById('f-vis-caldaia')?.checked), visCaldaiaAnno:n('vis-caldaia-anno'), visCaldaiaInclusa:!!(document.getElementById('f-vis-caldaia-inc')?.checked),
-    visCondiz:!!(document.getElementById('f-vis-condiz')?.checked), visFibra:!!(document.getElementById('f-vis-fibra')?.checked),
-    visLavori:!!(document.getElementById('f-vis-lavori')?.checked), visLavoriNote:v('vis-lavori-note'),
-    visSpeseStr:!!(document.getElementById('f-vis-spese-str')?.checked), visSpeseStrNote:v('vis-spese-str-note'),
-    visLitigioso:!!(document.getElementById('f-vis-litigioso')?.checked), visAmm:!!(document.getElementById('f-vis-amm')?.checked),
+    visCaldaia:!!(document.getElementById('f-vis-caldaia')?.checked), visCaldaiaAnno:v('vis-caldaia-anno'),
+    visCondizPres:!!(document.getElementById('f-vis-condiz-pres')?.checked), visCondizPred:!!(document.getElementById('f-vis-condiz-pred')?.checked), visCondizNote:v('vis-condiz-note'),
+    visFibraPres:!!(document.getElementById('f-vis-fibra-pres')?.checked), visFibraPred:!!(document.getElementById('f-vis-fibra-pred')?.checked), visFibraNote:v('vis-fibra-note'),
+    visLavori:!!(document.getElementById('f-vis-lavori')?.checked), visLavoriNo:!!(document.getElementById('f-vis-lavori-no')?.checked), visLavoriNote:v('vis-lavori-note'),
+    visSpeseStr:!!(document.getElementById('f-vis-spese-str')?.checked), visSpeseStrNo:!!(document.getElementById('f-vis-spese-str-no')?.checked), visSpeseStrNote:v('vis-spese-str-note'),
+    visAmichevoli:!!(document.getElementById('f-vis-amichevoli')?.checked), visAmm:!!(document.getElementById('f-vis-amm')?.checked),
     visIpoteca:!!(document.getElementById('f-vis-ipoteca')?.checked), visPlanimetria:!!(document.getElementById('f-vis-planimetria')?.checked),
     visAbuso:!!(document.getElementById('f-vis-abuso')?.checked), visAbusoNote:v('vis-abuso-note'),
     visApe:!!(document.getElementById('f-vis-ape')?.checked), visUnico:!!(document.getElementById('f-vis-unico')?.checked),

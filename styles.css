@@ -371,3 +371,31 @@ a.btn-ghost:not(.site-header a):hover {
   background: #fff;
   box-shadow: 0 0 0 3px rgba(144,25,255,.10);
 }
+.vq-inline-row, .vq-multi-row {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  margin-bottom: .4rem;
+  flex-wrap: wrap;
+}
+.vq-inline-note {
+  flex: 1;
+  min-width: 80px;
+}
+.vq-row-label {
+  font-size: .79rem;
+  font-weight: 500;
+  color: var(--tm);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.vq-mini-check {
+  font-size: .76rem;
+  padding: .28rem .5rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.vq-inline-check {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
