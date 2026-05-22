@@ -75,7 +75,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);mi
 /* CARD */
 .card{background:var(--white);border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;overflow:hidden;display:flex;flex-direction:column;}
 .card:hover{box-shadow:var(--sh-h);transform:translateY(-2px);}
-
+/* highlight when auto-scrolling to a card */
+.card.highlight-scroll{box-shadow:0 18px 48px rgba(39,100,160,.12);transform:translateY(-4px);border:1px solid rgba(39,100,160,.12);} 
 .card-header{padding:.9rem 1.15rem .7rem;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:.65rem;}
 .card-num{width:26px;height:26px;border-radius:50%;background:var(--tc-l);color:var(--tc);font-size:.72rem;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
 .card-title-area{flex:1;min-width:0;}
@@ -256,12 +257,12 @@ a.btn{display:inline-flex;}
   <span class="sort-label">Ordina per:</span>
   <div class="sort-pills">
     <button class="pill active" onclick="setSort('data')" id="pill-data">🕐 Data</button>
-    <button class="pill" onclick="setSort('prezzo')" id="pill-prezzo">💰 Prezzo</button>
+    <button class="pill" onclick="setSort('appuntamento')" id="pill-appuntamento">📅 Appuntamento</button>
     <button class="pill" onclick="setSort('stelline')" id="pill-stelline">⭐ Gradimento</button>
+    <button class="pill" onclick="setSort('prezzo')" id="pill-prezzo">💰 Prezzo</button>
     <button class="pill" onclick="setSort('mq')" id="pill-mq">📐 Metri quadri</button>
     <button class="pill" onclick="setSort('scuola')" id="pill-scuola">🏫 Vicino scuola</button>
     <button class="pill" onclick="setSort('stazione')" id="pill-stazione">🚂 Vicino stazione</button>
-    <button class="pill" onclick="setSort('appuntamento')" id="pill-appuntamento">📅 Appuntamento</button>
   </div>
   <span class="count-badge" id="count-badge">0 case</span>
 </div>
@@ -980,6 +981,24 @@ function setSort(s) {
   const el = document.getElementById('pill-'+s);
   if(el) el.classList.add('active');
   render();
+
+  // se ordino per appuntamento, dopo il render scorro alla prima casa NON visitata
+  if(s === 'appuntamento'){
+    requestAnimationFrame(()=>{
+      const sorted = getSorted();
+      // preferiamo case con data di visita non visitate
+      const firstNot = sorted.find(h => !h.venduta && !h.visitata && h.dataVisita);
+      const target = firstNot || sorted.find(h => !h.venduta && h.dataVisita) || null;
+      if(target){
+        const card = document.getElementById('card-' + target.id);
+        if(card){
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          card.classList.add('highlight-scroll');
+          setTimeout(()=>card.classList.remove('highlight-scroll'), 1600);
+        }
+      }
+    });
+  }
 }
 
 /* ─── MODAL ─── */
