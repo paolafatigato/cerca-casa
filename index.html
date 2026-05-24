@@ -797,16 +797,14 @@ function toast(msg, ms=2200) {
 
 // --- Sync between 'Dati casa' and 'Domande visita' ---
 function safeGet(id){ return document.getElementById(id); }
-document.addEventListener('DOMContentLoaded', ()=>{
+function initVisitSync(){
   const casaSpese = safeGet('f-spese');
   const visitaSpese = safeGet('f-vis-spese');
   const casaClasse = safeGet('f-classe');
   const visitaClasse = safeGet('f-vis-classe');
 
   if(casaSpese && visitaSpese){
-    // initialize
     visitaSpese.value = casaSpese.value || '';
-    // two-way binding
     casaSpese.addEventListener('input', ()=>{ visitaSpese.value = casaSpese.value; });
     visitaSpese.addEventListener('input', ()=>{ casaSpese.value = visitaSpese.value; });
   }
@@ -816,7 +814,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
     casaClasse.addEventListener('change', ()=>{ visitaClasse.value = casaClasse.value; });
     visitaClasse.addEventListener('change', ()=>{ casaClasse.value = visitaClasse.value; });
   }
-});
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initVisitSync);
+else initVisitSync();
 
 function fmt(n) {
   if(!n) return '—';
