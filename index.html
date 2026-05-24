@@ -883,10 +883,9 @@ function renderCard(h, idx) {
   <div class="card${h.venduta?' venduta':''}${h.visitata&&!h.venduta?' visitata':''}" id="card-${h.id}" onclick="openModal('${h.id}')" style="cursor:pointer;">
     <div class="card-header">
       <div class="card-num">${idx+1}</div>
-      <div class="card-title-area">
+        <div class="card-title-area">
         <div class="card-nome" title="${h.nome||''}">${h.nome||'Casa senza nome'}</div>
         <div class="stars">${starsHTML(h.stelline||0)}</div>
-        ${(h.indirizzo||h.nome)?`<a class="map-inline" href="https://maps.google.com/?q=${encodeURIComponent(h.indirizzo||h.nome)}" target="_blank" onclick="event.stopPropagation()" title="Apri in Maps">🗺️</a>`:''}
       </div>
       ${h.venduta?`<span class="badge badge-venduta">🔴 Venduta</span>`:`<span class="badge badge-vis ${h.visitata?'yes':'no'}" onclick="event.stopPropagation(); quickVisit('${h.id}')" style="cursor:pointer;">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</span>`}
     </div>
@@ -926,7 +925,7 @@ function renderCard(h, idx) {
 
     <div class="card-actions">
       ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank" onclick="event.stopPropagation()">🔗 Annuncio</a>`:''}
-      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editHouse('${h.id}')">✏️ Modifica</button>
+      <button class="btn btn-ghost btn-sm" title="Apri in Maps" onclick="event.stopPropagation(); window.open('https://maps.google.com/?q=${encodeURIComponent(h.nome||h.indirizzo||'')}', '_blank')">🗺️ Maps</button>
       ${h.dataVisita?`<button class="btn btn-ghost btn-sm" title="Aggiungi al Google Calendar" onclick="event.stopPropagation(); addToCalendar('${h.id}')">📅 Cal.</button>`:''}
       <!-- quickVisit moved to header badge to avoid duplicate button -->
       <button class="btn btn-xs ${h.venduta?'btn-ghost':'btn-ghost'}" style="${h.venduta?'color:var(--green);border-color:var(--green);':''}" onclick="event.stopPropagation(); quickVenduta('${h.id}')">${h.venduta?'🟢 Disponibile':'🔴 Venduta'}</button>
