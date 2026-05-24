@@ -294,13 +294,22 @@ a.btn{display:inline-flex;}
         <div class="fg"><label>Link annuncio</label>
           <input type="url" id="f-link" placeholder="https://www.immobiliare.it/..."></div>
       </div>
-      <div class="form-row three">
+        <div class="form-row three">
         <div class="fg"><label>Prezzo (€)</label>
           <input type="number" id="f-prezzo" placeholder="180000" min="0" step="1000"></div>
         <div class="fg"><label>Metratura (m²)</label>
           <input type="number" id="f-mq" placeholder="75" min="0"></div>
         <div class="fg"><label>Piano</label>
-          <input type="text" id="f-piano" placeholder="es. 3° su 5"></div>
+          <input type="text" id="f-piano" list="f-piano-list" placeholder="es. 3° su 5" autocomplete="off">
+          <datalist id="f-piano-list">
+            <option value="Rialzato">
+            <option value="1°">
+            <option value="2°">
+            <option value="3°">
+            <option value="4°">
+            <option value="5°">
+          </datalist>
+        </div>
       </div>
       <div class="form-row">
         <div class="fg"><label>Classe energetica</label>
@@ -877,8 +886,9 @@ function renderCard(h, idx) {
       <div class="card-title-area">
         <div class="card-nome" title="${h.nome||''}">${h.nome||'Casa senza nome'}</div>
         <div class="stars">${starsHTML(h.stelline||0)}</div>
+        ${(h.indirizzo||h.nome)?`<a class="map-inline" href="https://maps.google.com/?q=${encodeURIComponent(h.indirizzo||h.nome)}" target="_blank" onclick="event.stopPropagation()" title="Apri in Maps">🗺️</a>`:''}
       </div>
-      ${h.venduta?`<span class="badge badge-venduta">🔴 Venduta</span>`:`<span class="badge badge-vis ${h.visitata?'yes':'no'}">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</span>`}
+      ${h.venduta?`<span class="badge badge-venduta">🔴 Venduta</span>`:`<span class="badge badge-vis ${h.visitata?'yes':'no'}" onclick="event.stopPropagation(); quickVisit('${h.id}')" style="cursor:pointer;">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</span>`}
     </div>
 
     <div class="price-row">
@@ -918,7 +928,7 @@ function renderCard(h, idx) {
       ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank" onclick="event.stopPropagation()">🔗 Annuncio</a>`:''}
       <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editHouse('${h.id}')">✏️ Modifica</button>
       ${h.dataVisita?`<button class="btn btn-ghost btn-sm" title="Aggiungi al Google Calendar" onclick="event.stopPropagation(); addToCalendar('${h.id}')">📅 Cal.</button>`:''}
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="event.stopPropagation(); quickVisit('${h.id}')">${h.visitata?'↩️ Non visitata':'✅ Segna visitata'}</button>
+      <!-- quickVisit moved to header badge to avoid duplicate button -->
       <button class="btn btn-xs ${h.venduta?'btn-ghost':'btn-ghost'}" style="${h.venduta?'color:var(--green);border-color:var(--green);':''}" onclick="event.stopPropagation(); quickVenduta('${h.id}')">${h.venduta?'🟢 Disponibile':'🔴 Venduta'}</button>
       <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteHouse('${h.id}')">🗑️</button>
     </div>
