@@ -878,7 +878,7 @@ function renderCard(h, idx) {
         <div class="card-nome" title="${h.nome||''}">${h.nome||'Casa senza nome'}</div>
         <div class="stars">${starsHTML(h.stelline||0)}</div>
       </div>
-      ${h.venduta?`<span class="badge badge-venduta">🔴 Venduta</span>`:`<span class="badge badge-vis ${h.visitata?'yes':'no'}">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</span>`}
+      ${h.venduta?`<span class="badge badge-venduta">🔴 Venduta</span>`:`<button class="badge badge-vis ${h.visitata?'yes':'no'}" onclick="event.stopPropagation(); quickVisit('${h.id}')" aria-pressed="${h.visitata?'true':'false'}">${h.visitata?'✅ Visitata':'👁️ Da vedere'}</button>`}
     </div>
 
     <div class="price-row">
@@ -915,10 +915,10 @@ function renderCard(h, idx) {
     ${h.note?`<div class="note-txt">📝 ${h.note}</div>`:''}
 
     <div class="card-actions">
-      ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank" onclick="event.stopPropagation()">🔗 Annuncio</a>`:''}
+      ${hasLink?`<a class="btn btn-ghost btn-sm" href="${h.link}" target="_blank" onclick="event.stopPropagation()">🔗 Annuncio</a>`:''}${(h.indirizzo||h.nome)?`<a class="btn btn-ghost btn-sm" href="https://maps.google.com/?q=${encodeURIComponent(h.indirizzo||h.nome)}" target="_blank" onclick="event.stopPropagation()">🗺️ Maps</a>`:''}
       <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); editHouse('${h.id}')">✏️ Modifica</button>
       ${h.dataVisita?`<button class="btn btn-ghost btn-sm" title="Aggiungi al Google Calendar" onclick="event.stopPropagation(); addToCalendar('${h.id}')">📅 Cal.</button>`:''}
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="event.stopPropagation(); quickVisit('${h.id}')">${h.visitata?'↩️ Non visitata':'✅ Segna visitata'}</button>
+      
       <button class="btn btn-xs ${h.venduta?'btn-ghost':'btn-ghost'}" style="${h.venduta?'color:var(--green);border-color:var(--green);':''}" onclick="event.stopPropagation(); quickVenduta('${h.id}')">${h.venduta?'🟢 Disponibile':'🔴 Venduta'}</button>
       <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteHouse('${h.id}')">🗑️</button>
     </div>
