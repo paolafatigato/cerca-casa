@@ -153,7 +153,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--td);mi
 .fg textarea{resize:vertical;min-height:68px;line-height:1.5;}
 
 /* CHECKS */
-.checks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.7rem;}
+.checks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;}
 .check-item{display:flex;align-items:center;gap:7px;padding:.45rem .7rem;border:1px solid var(--bds);border-radius:var(--rs);cursor:pointer;transition:all .15s;font-size:.8rem;color:var(--tm);user-select:none;}
 .check-item:hover{border-color:var(--tc-m);}
 .check-item input[type=checkbox]{width:14px;height:14px;accent-color:var(--tc);cursor:pointer;}
@@ -538,6 +538,18 @@ a.btn{display:inline-flex;}
           <input type="text" id="f-vis-risc-note" class="vq-note" placeholder="Ripartizione spese? Morosità? (se centralizzato)">
         </div>
 
+        <div class="form-row">
+          <div class="fg"><label>Classe energetica</label>
+            <select id="f-vis-classe">
+              <option value="">—</option>
+              <option>A4</option><option>A3</option><option>A2</option><option>A1</option>
+              <option>B</option><option>C</option><option>D</option><option>E</option>
+              <option>F</option><option>G</option>
+            </select></div>
+          <div class="fg"><label>Spese condominiali (€/mese)</label>
+            <input type="number" id="f-vis-spese" placeholder="80" min="0"></div>
+        </div>
+
         <div class="sec">🏢 Condominio</div>
         <div class="vq-list">
           <div class="vq-item">
@@ -550,8 +562,8 @@ a.btn{display:inline-flex;}
                 <input type="checkbox" id="f-vis-lavori-no" onchange="refreshCI('vis-lavori-no')"> No
               </label>
             </div>
-            <input type="text" id="f-vis-lavori-note" class="vq-note" placeholder="Quali? Importo stimato?">
-          </div>
+            <!-- nota rimossa: spostata solo sotto spese straordinarie/condomini amichevoli -->
+            </div>
           <div class="vq-item">
             <div class="vq-multi-row" style="margin-bottom:.25rem;">
               <span class="vq-row-label">💸 Spese straordinarie</span>
@@ -562,40 +574,22 @@ a.btn{display:inline-flex;}
                 <input type="checkbox" id="f-vis-spese-str-no" onchange="refreshCI('vis-spese-str-no')"> No
               </label>
             </div>
-            <input type="text" id="f-vis-spese-str-note" class="vq-note" placeholder="Importo / dettagli">
-          </div>
-          <div class="checks-grid" style="grid-template-columns:1fr 1fr;">
-            <label class="check-item" id="ci-vis-amichevoli">
-              <input type="checkbox" id="f-vis-amichevoli" onchange="refreshCI('vis-amichevoli')"> 🤝 Condomini amichevoli
-            </label>
-            <label class="check-item" id="ci-vis-amm">
-              <input type="checkbox" id="f-vis-amm" onchange="refreshCI('vis-amm')"> 👤 Ha amministratore
-            </label>
-          </div>
+              <input type="text" id="f-vis-spese-str-note" class="vq-note" placeholder="Importo / dettagli">
+            </div>
+            <div class="checks-grid" style="grid-template-columns:1fr 1fr;">
+              <label class="check-item" id="ci-vis-amichevoli">
+                <input type="checkbox" id="f-vis-amichevoli" onchange="refreshCI('vis-amichevoli')"> 🤝 Condomini amichevoli
+              </label>
+              <label class="check-item" id="ci-vis-amm">
+                <input type="checkbox" id="f-vis-amm" onchange="refreshCI('vis-amm')"> 👤 Ha amministratore
+              </label>
+            </div>
+            <div class="vq-list" style="margin-top:.25rem;">
+              <input type="text" id="f-vis-amichevoli-note" class="vq-note" placeholder="Età famiglie / nome amministratore / note">
+            </div>
         </div>
 
-        <div class="sec">📋 Aspetti legali</div>
-        <div class="checks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.35rem;">
-          <label class="check-item" id="ci-vis-ipoteca">
-            <input type="checkbox" id="f-vis-ipoteca" onchange="refreshCI('vis-ipoteca')"> 🔒 Ipotecato / pendenze
-          </label>
-          <label class="check-item" id="ci-vis-planimetria">
-            <input type="checkbox" id="f-vis-planimetria" onchange="refreshCI('vis-planimetria')"> 📐 Planimetria conforme
-          </label>
-          <label class="check-item" id="ci-vis-abuso">
-            <input type="checkbox" id="f-vis-abuso" onchange="refreshCI('vis-abuso')"> 🚧 Abusi edilizi
-          </label>
-          <label class="check-item" id="ci-vis-ape">
-            <input type="checkbox" id="f-vis-ape" onchange="refreshCI('vis-ape')"> 📄 APE aggiornato
-          </label>
-          <label class="check-item" id="ci-vis-unico">
-            <input type="checkbox" id="f-vis-unico" onchange="refreshCI('vis-unico')"> 👤 Unico proprietario
-          </label>
-        </div>
-        <div class="vq-list">
-          <input type="text" id="f-vis-abuso-note" class="vq-note" placeholder="🚧 Abusi edilizi: dettagli / sanati?">
-          <input type="text" id="f-vis-perche" class="vq-note" placeholder="❓ Perché vende? Da quanto è sul mercato?">
-        </div>
+        <!-- 'Perché vende' spostato sotto Prezzo e trattativa -->
 
         <div class="sec">💰 Prezzo e trattativa</div>
         <div class="checks-grid" style="grid-template-columns:1fr 1fr;margin-bottom:.35rem;">
@@ -605,11 +599,10 @@ a.btn{display:inline-flex;}
           <label class="check-item" id="ci-vis-offerte">
             <input type="checkbox" id="f-vis-offerte" onchange="refreshCI('vis-offerte')"> 📨 Altre offerte arrivate
           </label>
-          <label class="check-item" id="ci-vis-spese-ok">
-            <input type="checkbox" id="f-vis-spese-ok" onchange="refreshCI('vis-spese-ok')"> ✅ Spese cond. in regola
-          </label>
+          <!-- checkbox 'Spese cond. in regola' rimosso per ora -->
         </div>
         <div class="vq-list">
+          <input type="text" id="f-vis-perche" class="vq-note" placeholder="Perché vende? Da quanto è sul mercato?">
           <input type="text" id="f-vis-rogito" class="vq-note" placeholder="📅 Tempistica rogito attesa dal venditore">
           <input type="text" id="f-vis-utenze" class="vq-note" placeholder="💡 Utenze: intestate a chi? Morosità?">
         </div>
@@ -634,17 +627,18 @@ a.btn{display:inline-flex;}
         </div>
         <div class="vq-list">
           <input type="text" id="f-vis-luce" class="vq-note" placeholder="☀️ A che ora entra più luce?">
-          <div class="vq-item">
-            <label class="check-item" id="ci-vis-rumore">
-              <input type="checkbox" id="f-vis-rumore" onchange="refreshCI('vis-rumore')"> 🔊 Rumore percepito (strade / treni / locali)
+          <div class="vq-inline-row">
+            <label class="check-item vq-inline-check" id="ci-vis-rumore">
+              <input type="checkbox" id="f-vis-rumore" onchange="refreshCI('vis-rumore')"> 🔊 Rumorosa
             </label>
-            <input type="text" id="f-vis-rumore-note" class="vq-note" placeholder="Da cosa? Di notte? Intensità?">
+            <input type="text" id="f-vis-rumore-note" class="vq-note vq-inline-note" placeholder="Da cosa? Di notte? Intensità?">
           </div>
-          <label class="check-item" id="ci-vis-posto-auto">
-            <input type="checkbox" id="f-vis-posto-auto" onchange="refreshCI('vis-posto-auto')"> 🚗 Posto auto visitabile fisicamente
-          </label>
-          <input type="text" id="f-vis-internet" class="vq-note" placeholder="📶 Connessione internet nella zona">
-          <input type="text" id="f-vis-quartiere" class="vq-note" placeholder="📈 Quartiere: si è rivalutato o svalutato?">
+            <div class="vq-item">
+              <label style="font-size:.75rem;color:var(--tm);font-weight:500;">🔨 Quali muri sono portanti?</label>
+              <input type="text" id="f-vis-muri-portanti" class="vq-note" placeholder="Es. muro tra cucina e soggiorno; muri esterni">
+            </div>
+            <input type="text" id="f-vis-internet" class="vq-note" placeholder="📶 Connessione internet nella zona">
+            <input type="text" id="f-vis-quartiere" class="vq-note" placeholder="📈 Quartiere: si è rivalutato o svalutato?">
         </div>
 
       </div><!-- /page-visita -->
@@ -800,6 +794,29 @@ function toast(msg, ms=2200) {
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), ms);
 }
+
+// --- Sync between 'Dati casa' and 'Domande visita' ---
+function safeGet(id){ return document.getElementById(id); }
+document.addEventListener('DOMContentLoaded', ()=>{
+  const casaSpese = safeGet('f-spese');
+  const visitaSpese = safeGet('f-vis-spese');
+  const casaClasse = safeGet('f-classe');
+  const visitaClasse = safeGet('f-vis-classe');
+
+  if(casaSpese && visitaSpese){
+    // initialize
+    visitaSpese.value = casaSpese.value || '';
+    // two-way binding
+    casaSpese.addEventListener('input', ()=>{ visitaSpese.value = casaSpese.value; });
+    visitaSpese.addEventListener('input', ()=>{ casaSpese.value = visitaSpese.value; });
+  }
+
+  if(casaClasse && visitaClasse){
+    visitaClasse.value = casaClasse.value || '';
+    casaClasse.addEventListener('change', ()=>{ visitaClasse.value = casaClasse.value; });
+    visitaClasse.addEventListener('change', ()=>{ casaClasse.value = visitaClasse.value; });
+  }
+});
 
 function fmt(n) {
   if(!n) return '—';
